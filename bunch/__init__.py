@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# encoding: utf-8
 """ Bunch is a subclass of dict with attribute-style access.
     
     >>> b = Bunch()
@@ -260,8 +262,6 @@ def unbunchify(x):
         return type(x)( unbunchify(v) for v in x )
     else:
         return x
-
-
 
 
 if __name__ == "__main__":

@@ -42,21 +42,18 @@ And "splats":
     'The lolcats who say can haz!'
 
 
-Conversion
-----------
+Miscellaneous
+-------------
 
-Bunch converts easily to (``unbunchify/Bunch.toDict``) and from (``bunchify/Bunch.fromDict``) a normal ``dict``, making it easy to cleanly serialize them to JSON or YAML.
-
-
-Import Safe
------------
-
-It is safe to ``import *`` from this module. You'll get:
-
-    __all__ = ('Bunch', 'bunchify','unbunchify')
-
+ * Bunch converts easily to (``unbunchify``, ``Bunch.toDict``) and from (``bunchify``, ``Bunch.fromDict``) a normal ``dict``, making it easy to cleanly serialize them to JSON or YAML.
+ 
+ * It is safe to ``import *`` from this module. You'll get: ``Bunch``, ``bunchify``, and ``unbunchify``.
+ 
+ * Tests::
+ 
+    $ python -m bunch.test -v
 
 Feedback
 --------
 
-Open a ticket on [github](http://github.com/dsc/bunch), or send me an email at [dsc@less.ly](mailto:dsc@less.ly).
+Open a ticket at http://github.com/dsc/bunch or send me an email at dsc@less.ly .
