@@ -5,7 +5,7 @@ version = "1.0.0"
 
 # Read the long description from the README.txt
 here = os.path.abspath(os.path.dirname(__file__))
-f = open(os.path.join(here, 'README.txt'))
+f = open(os.path.join(here, 'README.rst'))
 readme = f.read()
 f.close()
 
