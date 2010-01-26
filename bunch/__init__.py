@@ -1,6 +1,4 @@
-""" bunch provides Bunch, a subclass of dictionary with attribute-style access,
-    and un/bunchify(), two utility functions for dictionary conversion. Bunches 
-    can also be converted Bunch.to/fromDict().
+""" Bunch is a subclass of dict with attribute-style access.
     
     >>> b = Bunch()
     >>> b.hello = 'world'
@@ -14,9 +12,16 @@
     True
     >>> b.foo is b['foo']
     True
+    
+    It is safe to import * from this module:
+    
+        __all__ = ('Bunch', 'bunchify','unbunchify')
+    
+    un/bunchify provide dictionary conversion; Bunches can also be
+    converted via Bunch.to/fromDict().
 """
 
-__all__ = ('Bunch', 'bunchify',)
+__all__ = ('Bunch', 'bunchify','unbunchify')
 
 
 class Bunch(dict):
@@ -56,7 +61,7 @@ class Bunch(dict):
         >>> "The {knights} who say {ni}!".format(**Bunch(knights='lolcats', ni='can haz'))
         'The lolcats who say can haz!'
         
-        See Bunch.toDict, Bunch.fromDict, and bunchify for notes about conversion.
+        See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
     """
     
     def __contains__(self, k):
