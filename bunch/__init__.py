@@ -85,7 +85,7 @@ class Bunch(dict):
             return False
     
     # only called if k not found in normal places 
-    def __getattr__(self, k):
+    def __getattr__(self, name):
         """ Gets key if it exists, otherwise throws AttributeError.
             
             nb. __getattr__ is only called if key is not found in normal places.
@@ -109,11 +109,11 @@ class Bunch(dict):
             True
         """
         try:
-            return self[k]
+            return self[name]
         except KeyError:
-            raise AttributeError(k)
-    
-    def __setattr__(self, k, v):
+            raise AttributeError(name)
+
+    def __setattr__(self, name, value):
         """ Sets attribute k if it exists, otherwise sets key k. A KeyError
             raised by set-item (only likely if you subclass Bunch) will 
             propagate as an AttributeError instead.
@@ -129,18 +129,12 @@ class Bunch(dict):
                 ...
             KeyError: 'values'
         """
-        try:
-            # Throws exception if not in prototype chain
-            object.__getattribute__(self, k)
-        except AttributeError:
-            try:
-                self[k] = v
-            except:
-                raise AttributeError(k)
+        if hasattr(self, name):
+            object.__setattr__(self, name, value)
         else:
-            object.__setattr__(self, k, v)
-    
-    def __delattr__(self, k):
+            self.setdefault(name, value)
+
+    def __delattr__(self, name):
         """ Deletes attribute k if it exists, otherwise deletes key k. A KeyError
             raised by deleting the key--such as when the key is missing--will
             propagate as an AttributeError instead.
@@ -157,27 +151,10 @@ class Bunch(dict):
             AttributeError: lol
         """
         try:
-            # Throws exception if not in prototype chain
-            object.__getattribute__(self, k)
-        except AttributeError:
-            try:
-                del self[k]
-            except KeyError:
-                raise AttributeError(k)
-        else:
-            object.__delattr__(self, k)
-    
-    def toDict(self):
-        """ Recursively converts a bunch back into a dictionary.
-            
-            >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            >>> b.toDict()
-            {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
-            
-            See unbunchify for more info.
-        """
-        return unbunchify(self)
-    
+            del self[name]
+        except KeyError:
+            object.__delattr__(self, name)
+        
     def __repr__(self):
         """ Invertible* string-form of a Bunch.
             
