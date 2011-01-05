@@ -19,8 +19,7 @@
     
         __all__ = ('Bunch', 'bunchify','unbunchify')
     
-    un/bunchify provide dictionary conversion; Bunches can also be
-    converted via Bunch.to/fromDict().
+    un/bunchify provide deep recursive dictionary conversion;
 """
 
 __all__ = ('Bunch', 'bunchify','unbunchify')
@@ -223,7 +222,7 @@ def bunchify(x):
         return x
 
 def unbunchify(x):
-    """ Recursively converts a Bunch into a dictionary.
+    """ Recursively transforms a Bunch into a dictionary.
         
         >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
         >>> unbunchify(b)
