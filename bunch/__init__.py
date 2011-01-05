@@ -149,9 +149,9 @@ class Bunch(dict):
             self.setdefault(name, value)
 
     def __delattr__(self, name):
-        """ Deletes attribute k if it exists, otherwise deletes key k. A KeyError
-            raised by deleting the key--such as when the key is missing--will
-            propagate as an AttributeError instead.
+        """ Deletes attribute k if it exists, otherwise deletes key k. 
+            A KeyError raised by deleting the key--such as when the key is missing--
+            will propagate as an AttributeError instead.
             
             >>> b = Bunch(lol=42)
             >>> del b.values
@@ -190,7 +190,7 @@ class Bunch(dict):
 # Should you disagree, it is not difficult to duplicate this function with
 # more aggressive coercion to suit your own purposes.
 
-def bunchify(x):
+def bunchify(obj):
     """ Recursively transforms a dictionary into a Bunch via copy.
         
         >>> b = bunchify({'urmom': {'sez': {'what': 'what'}}})
@@ -208,14 +208,14 @@ def bunchify(x):
         
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
-        return Bunch( (k, bunchify(v)) for k,v in x.iteritems() )
-    elif isinstance(x, (list, tuple)):
-        return type(x)( bunchify(v) for v in x )
+    if isinstance(obj, dict):
+        return Bunch((key, bunchify(val)) for key, val in obj.iteritems())
+    elif isinstance(obj, (list, tuple)):
+        return type(obj)(bunchify(item) for item in obj)
     else:
-        return x
+        return obj
 
-def unbunchify(x):
+def unbunchify(obj):
     """ Recursively transforms a Bunch into a dictionary.
         
         >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
@@ -231,12 +231,12 @@ def unbunchify(x):
         
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
-        return dict( (k, unbunchify(v)) for k,v in x.iteritems() )
-    elif isinstance(x, (list, tuple)):
-        return type(x)( unbunchify(v) for v in x )
+    if isinstance(obj, dict):
+        return dict((key, unbunchify(val)) for key, val in obj.iteritems())
+    elif isinstance(obj, (list, tuple)):
+        return type(obj)(unbunchify(o) for o in obj)
     else:
-        return x
+        return obj
 
 
 if __name__ == "__main__":
