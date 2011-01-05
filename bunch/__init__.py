@@ -50,12 +50,12 @@ class Bunch(dict):
         
         >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
         >>> print repr(b)
-        Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+        Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
         
         As well as iteration...
         
         >>> [ (k,b[k]) for k in b ]
-        [('ponies', 'are pretty!'), ('foo', Bunch(lol=True)), ('hello', 42)]
+        [('ponies', 'are pretty!'), ('foo', Bunch({'lol': True})), ('hello', 42)]
         
         And "splats".
         
@@ -93,7 +93,7 @@ class Bunch(dict):
         >>> data == obj
         True
         >>> Bunch(data)
-        Bunch(4=5, 6=7)
+        Bunch({'4': 5, '6': 7})
 
         See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
     """
@@ -170,21 +170,15 @@ class Bunch(dict):
             object.__delattr__(self, name)
         
     def __repr__(self):
-        """ Invertible* string-form of a Bunch.
+        """ String-form of a Bunch.
             
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
             >>> print repr(b)
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
             >>> eval(repr(b))
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            
-            (*) Invertible so long as collection contents are each repr-invertible.
+            Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
         """
-        keys = self.keys()
-        keys.sort()
-        args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
-        return '%s(%s)' % (self.__class__.__name__, args)
-    
+        return '%s(%s)' % (self.__class__.__name__, str(dict.__repr__(self)))
 
 
 
