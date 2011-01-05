@@ -186,17 +186,7 @@ class Bunch(dict):
         args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
         return '%s(%s)' % (self.__class__.__name__, args)
     
-    @staticmethod
-    def fromDict(d):
-        """ Recursively transforms a dictionary into a Bunch via copy.
-            
-            >>> b = Bunch.fromDict({'urmom': {'sez': {'what': 'what'}}})
-            >>> b.urmom.sez.what
-            'what'
-            
-            See bunchify for more info.
-        """
-        return bunchify(d)
+
 
 
 
