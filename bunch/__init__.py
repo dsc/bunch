@@ -63,6 +63,26 @@ class Bunch(dict):
         >>> "The {knights} who say {ni}!".format(**Bunch(knights='lolcats', ni='can haz'))
         'The lolcats who say can haz!'
         
+        Let's test JSON
+        
+        Encode:
+        >>> import simplejson as json
+        >>> s = json.dumps(Bunch({'4': 5, '6': 7}), sort_keys=True, indent=' '*4)
+        >>> print '\\n'.join(l.rstrip() for l in s.splitlines())
+        {
+            "4": 5,
+            "6": 7
+        }
+        
+        Decode:
+        >>> import simplejson as json
+        >>> obj = {'4': 5, '6':7}
+        >>> data = json.loads('{"4": 5, "6":7}')
+        >>> data == obj
+        True
+        >>> Bunch(data)
+        Bunch(4=5, 6=7)
+
         See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
     """
     
