@@ -19,7 +19,7 @@
     
         __all__ = ('Bunch', 'bunchify','unbunchify')
     
-    un/bunchify provide deep recursive dictionary conversion;
+    (un)bunchify provide deep recursive dictionary conversion;
 """
 
 __all__ = ('Bunch', 'bunchify','unbunchify')
@@ -27,6 +27,7 @@ __all__ = ('Bunch', 'bunchify','unbunchify')
 
 class Bunch(dict):
     """ A dictionary that provides attribute-style access.
+        See (un)bunchify for notes about conversions.
         
         >>> b = Bunch()
         >>> b.hello = 'world'
@@ -62,7 +63,8 @@ class Bunch(dict):
         >>> "The {knights} who say {ni}!".format(**Bunch(knights='lolcats', ni='can haz'))
         'The lolcats who say can haz!'
 
-		Test __contains___
+		Test __contains__:
+
         >>> b = Bunch(ponies='are pretty!')
         >>> 'ponies' in b
         True
@@ -94,8 +96,6 @@ class Bunch(dict):
         True
         >>> Bunch(data)
         Bunch({'4': 5, '6': 7})
-
-        See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
     """
     
 
