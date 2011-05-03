@@ -19,8 +19,7 @@
     
         __all__ = ('Bunch', 'bunchify','unbunchify')
     
-    un/bunchify provide dictionary conversion; Bunches can also be
-    converted via Bunch.to/fromDict().
+    (un)bunchify provide deep recursive dictionary conversion;
 """
 
 __all__ = ('Bunch', 'bunchify','unbunchify')
@@ -28,6 +27,7 @@ __all__ = ('Bunch', 'bunchify','unbunchify')
 
 class Bunch(dict):
     """ A dictionary that provides attribute-style access.
+        See (un)bunchify for notes about conversions.
         
         >>> b = Bunch()
         >>> b.hello = 'world'
@@ -51,41 +51,55 @@ class Bunch(dict):
         
         >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
         >>> print repr(b)
-        Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+        Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
         
         As well as iteration...
         
         >>> [ (k,b[k]) for k in b ]
-        [('ponies', 'are pretty!'), ('foo', Bunch(lol=True)), ('hello', 42)]
+        [('ponies', 'are pretty!'), ('foo', Bunch({'lol': True})), ('hello', 42)]
         
         And "splats".
         
         >>> "The {knights} who say {ni}!".format(**Bunch(knights='lolcats', ni='can haz'))
         'The lolcats who say can haz!'
+
+		Test __contains__:
+
+        >>> b = Bunch(ponies='are pretty!')
+        >>> 'ponies' in b
+        True
+        >>> 'foo' in b
+        False
+        >>> b['foo'] = 42
+        >>> 'foo' in b
+        True
+        >>> b.hello = 'hai'
+        >>> 'hello' in b
+        True
         
-        See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
+        Let's test JSON
+        
+        Encode:
+        >>> import simplejson as json
+        >>> s = json.dumps(Bunch({'4': 5, '6': 7}), sort_keys=True, indent=' '*4)
+        >>> print '\\n'.join(l.rstrip() for l in s.splitlines())
+        {
+            "4": 5,
+            "6": 7
+        }
+        
+        Decode:
+        >>> import simplejson as json
+        >>> obj = {'4': 5, '6':7}
+        >>> data = json.loads('{"4": 5, "6":7}')
+        >>> data == obj
+        True
+        >>> Bunch(data)
+        Bunch({'4': 5, '6': 7})
     """
     
-    def __contains__(self, k):
-        """ >>> b = Bunch(ponies='are pretty!')
-            >>> 'ponies' in b
-            True
-            >>> 'foo' in b
-            False
-            >>> b['foo'] = 42
-            >>> 'foo' in b
-            True
-            >>> b.hello = 'hai'
-            >>> 'hello' in b
-            True
-        """
-        try:
-            return hasattr(self, k) or dict.__contains__(self, k)
-        except:
-            return False
-    
-    # only called if k not found in normal places 
-    def __getattr__(self, k):
+
+    def __getattr__(self, name):
         """ Gets key if it exists, otherwise throws AttributeError.
             
             nb. __getattr__ is only called if key is not found in normal places.
@@ -109,11 +123,11 @@ class Bunch(dict):
             True
         """
         try:
-            return self[k]
+            return self[name]
         except KeyError:
-            raise AttributeError(k)
-    
-    def __setattr__(self, k, v):
+            raise AttributeError(name)
+
+    def __setattr__(self, name, value):
         """ Sets attribute k if it exists, otherwise sets key k. A KeyError
             raised by set-item (only likely if you subclass Bunch) will 
             propagate as an AttributeError instead.
@@ -129,21 +143,15 @@ class Bunch(dict):
                 ...
             KeyError: 'values'
         """
-        try:
-            # Throws exception if not in prototype chain
-            object.__getattribute__(self, k)
-        except AttributeError:
-            try:
-                self[k] = v
-            except:
-                raise AttributeError(k)
+        if hasattr(self, name):
+            object.__setattr__(self, name, value)
         else:
-            object.__setattr__(self, k, v)
-    
-    def __delattr__(self, k):
-        """ Deletes attribute k if it exists, otherwise deletes key k. A KeyError
-            raised by deleting the key--such as when the key is missing--will
-            propagate as an AttributeError instead.
+            self.setdefault(name, value)
+
+    def __delattr__(self, name):
+        """ Deletes attribute k if it exists, otherwise deletes key k. 
+            A KeyError raised by deleting the key--such as when the key is missing--
+            will propagate as an AttributeError instead.
             
             >>> b = Bunch(lol=42)
             >>> del b.values
@@ -157,54 +165,21 @@ class Bunch(dict):
             AttributeError: lol
         """
         try:
-            # Throws exception if not in prototype chain
-            object.__getattribute__(self, k)
-        except AttributeError:
-            try:
-                del self[k]
-            except KeyError:
-                raise AttributeError(k)
-        else:
-            object.__delattr__(self, k)
-    
-    def toDict(self):
-        """ Recursively converts a bunch back into a dictionary.
-            
-            >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            >>> b.toDict()
-            {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
-            
-            See unbunchify for more info.
-        """
-        return unbunchify(self)
-    
+            del self[name]
+        except KeyError:
+            object.__delattr__(self, name)
+        
     def __repr__(self):
-        """ Invertible* string-form of a Bunch.
+        """ String-form of a Bunch.
             
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
             >>> print repr(b)
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
             >>> eval(repr(b))
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            
-            (*) Invertible so long as collection contents are each repr-invertible.
+            Bunch({'ponies': 'are pretty!', 'foo': Bunch({'lol': True}), 'hello': 42})
         """
-        keys = self.keys()
-        keys.sort()
-        args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
-        return '%s(%s)' % (self.__class__.__name__, args)
-    
-    @staticmethod
-    def fromDict(d):
-        """ Recursively transforms a dictionary into a Bunch via copy.
-            
-            >>> b = Bunch.fromDict({'urmom': {'sez': {'what': 'what'}}})
-            >>> b.urmom.sez.what
-            'what'
-            
-            See bunchify for more info.
-        """
-        return bunchify(d)
+        return '%s(%s)' % (self.__class__.__name__, str(dict.__repr__(self)))
+
 
 
 
@@ -215,7 +190,7 @@ class Bunch(dict):
 # Should you disagree, it is not difficult to duplicate this function with
 # more aggressive coercion to suit your own purposes.
 
-def bunchify(x):
+def bunchify(obj):
     """ Recursively transforms a dictionary into a Bunch via copy.
         
         >>> b = bunchify({'urmom': {'sez': {'what': 'what'}}})
@@ -233,15 +208,15 @@ def bunchify(x):
         
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
-        return Bunch( (k, bunchify(v)) for k,v in x.iteritems() )
-    elif isinstance(x, (list, tuple)):
-        return type(x)( bunchify(v) for v in x )
+    if isinstance(obj, dict):
+        return Bunch((key, bunchify(val)) for key, val in obj.iteritems())
+    elif isinstance(obj, (list, tuple)):
+        return type(obj)(bunchify(item) for item in obj)
     else:
-        return x
+        return obj
 
-def unbunchify(x):
-    """ Recursively converts a Bunch into a dictionary.
+def unbunchify(obj):
+    """ Recursively transforms a Bunch into a dictionary.
         
         >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
         >>> unbunchify(b)
@@ -256,12 +231,12 @@ def unbunchify(x):
         
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
-        return dict( (k, unbunchify(v)) for k,v in x.iteritems() )
-    elif isinstance(x, (list, tuple)):
-        return type(x)( unbunchify(v) for v in x )
+    if isinstance(obj, dict):
+        return dict((key, unbunchify(val)) for key, val in obj.iteritems())
+    elif isinstance(obj, (list, tuple)):
+        return type(obj)(unbunchify(o) for o in obj)
     else:
-        return x
+        return obj
 
 
 if __name__ == "__main__":

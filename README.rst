@@ -29,7 +29,7 @@ Including ``update()``:
 
 >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
 >>> print repr(b)
-Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+Bunch({'foo':Bunch({'lol':True}), 'hello':42, 'ponies':'are pretty!'})
 
 As well as iteration:
 
@@ -45,7 +45,9 @@ And "splats":
 Miscellaneous
 -------------
 
-* Bunch converts easily to (``unbunchify``, ``Bunch.toDict``) and from (``bunchify``, ``Bunch.fromDict``) a normal ``dict``, making it easy to cleanly serialize them to JSON or YAML.
+* Bunch is a ``dict`` making it easy to cleanly serialize them to JSON or YAML.
+
+* Nested dicts converts easily to and from a normal ``dict`` (via ``unbunchify`` and ``bunchify``).
 
 * It is safe to ``import *`` from this module. You'll get: ``Bunch``, ``bunchify``, and ``unbunchify``.
 
