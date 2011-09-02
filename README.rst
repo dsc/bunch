@@ -45,7 +45,7 @@ And "splats":
 Miscellaneous
 -------------
 
-* Bunch converts easily to (``unbunchify``, ``Bunch.toDict``) and from (``bunchify``, ``Bunch.fromDict``) a normal ``dict``, making it easy to cleanly serialize them to JSON or YAML.
+* Bunch converts easily to (``unbunchify``, ``Bunch.toDict``) and from (``bunchify``, ``Bunch.fromDict``) a normal ``dict``, making it easy to cleanly serialize them to JSON or YAML. (In fact, Bunch attempts to register itself with `PyYAML<http://pyyaml.org/wiki/PyYAML>`_ so that Bunches can be transparently dumped and loaded.)
 
 * It is safe to ``import *`` from this module. You'll get: ``Bunch``, ``bunchify``, and ``unbunchify``.
 

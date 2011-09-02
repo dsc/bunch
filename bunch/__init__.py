@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 """ Bunch is a subclass of dict with attribute-style access.
     
     >>> b = Bunch()
@@ -23,7 +23,7 @@
     converted via Bunch.to/fromDict().
 """
 
-__all__ = ('Bunch', 'bunchify','unbunchify')
+__all__ = ('Bunch', 'bunchify','unbunchify',)
 
 
 class Bunch(dict):
@@ -109,9 +109,13 @@ class Bunch(dict):
             True
         """
         try:
-            return self[k]
-        except KeyError:
-            raise AttributeError(k)
+            # Throws exception if not in prototype chain
+            return object.__getattribute__(self, k)
+        except AttributeError:
+            try:
+                return self[k]
+            except KeyError:
+                raise AttributeError(k)
     
     def __setattr__(self, k, v):
         """ Sets attribute k if it exists, otherwise sets key k. A KeyError
@@ -225,7 +229,8 @@ def bunchify(x):
         bunchify can handle intermediary dicts, lists and tuples (as well as 
         their subclasses), but ymmv on custom datatypes.
         
-        >>> b = bunchify({ 'lol': ('cats', {'hah':'i win again'}), 'hello': [{'french':'salut', 'german':'hallo'}] })
+        >>> b = bunchify({ 'lol': ('cats', {'hah':'i win again'}), 
+        ...         'hello': [{'french':'salut', 'german':'hallo'}] })
         >>> b.hello[0].french
         'salut'
         >>> b.lol[1].hah
@@ -250,9 +255,11 @@ def unbunchify(x):
         unbunchify will handle intermediary dicts, lists and tuples (as well as
         their subclasses), but ymmv on custom datatypes.
         
-        >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42, ponies=('are pretty!', Bunch(lies='are trouble!')))
-        >>> unbunchify(b)
-        {'ponies': ('are pretty!', {'lies': 'are trouble!'}), 'foo': ['bar', {'lol': True}], 'hello': 42}
+        >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42, 
+        ...         ponies=('are pretty!', Bunch(lies='are trouble!')))
+        >>> unbunchify(b) #doctest: +NORMALIZE_WHITESPACE
+        {'ponies': ('are pretty!', {'lies': 'are trouble!'}), 
+         'foo': ['bar', {'lol': True}], 'hello': 42}
         
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
@@ -264,6 +271,70 @@ def unbunchify(x):
         return x
 
 
+try:
+    # Attempt to register ourself with PyYAML as a representer
+    import yaml
+    from yaml.representer import Representer, SafeRepresenter
+    
+    def from_yaml(loader, node):
+        """ PyYAML support for Bunches using the tag `!bunch` and `!bunch.Bunch`.
+            
+            >>> import yaml
+            >>> yaml.load('''
+            ... Flow style: !bunch.Bunch { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
+            ... Block style: !bunch
+            ...   Clark : Evans
+            ...   Brian : Ingerson
+            ...   Oren  : Ben-Kiki
+            ... ''') #doctest: +NORMALIZE_WHITESPACE
+            {'Flow style': Bunch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'), 
+             'Block style': Bunch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki')}
+            
+            This module registers itself automatically to cover both Bunch and any 
+            subclasses. Should you want to customize the representation of a subclass,
+            simply register it with PyYAML yourself.
+        """
+        data = Bunch()
+        yield data
+        value = loader.construct_mapping(node)
+        data.update(value)
+    
+    
+    def to_yaml_safe(dumper, data):
+        """ Converts Bunch to a normal mapping node, making it appear as a
+            dict in the YAML output.
+            
+            >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42)
+            >>> import yaml
+            >>> yaml.safe_dump(b, default_flow_style=True)
+            '{foo: [bar, {lol: true}], hello: 42}\\n'
+        """
+        return dumper.represent_dict(data)
+    
+    def to_yaml(dumper, data):
+        """ Converts Bunch to a representation node.
+            
+            >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42)
+            >>> import yaml
+            >>> yaml.dump(b, default_flow_style=True)
+            '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
+        """
+        return dumper.represent_mapping(u'!bunch.Bunch', data)
+    
+    
+    yaml.add_constructor(u'!bunch', from_yaml)
+    yaml.add_constructor(u'!bunch.Bunch', from_yaml)
+    
+    SafeRepresenter.add_representer(Bunch, to_yaml_safe)
+    SafeRepresenter.add_multi_representer(Bunch, to_yaml_safe)
+    
+    Representer.add_representer(Bunch, to_yaml)
+    Representer.add_multi_representer(Bunch, to_yaml)
+except ImportError:
+    pass
+
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+
