@@ -42,14 +42,47 @@ And "splats":
 'The lolcats who say can haz!'
 
 
+Serialization
+-------------
+
+Bunches happily and transparently serialize to JSON and YAML.
+
+>>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+>>> import json
+>>> json.dumps(b)
+'{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
+
+If JSON support is present (``json`` or ``simplejson``), ``Bunch`` will have a 
+``toJSON()`` method which returns the object as a JSON string.
+
+If you have `PyYAML<http://pyyaml.org/wiki/PyYAML>`_ installed, Bunch attempts to register
+itself with the various YAML Representers so that Bunches can be transparently dumped
+and loaded.
+
+>>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+>>> import yaml
+>>> yaml.dump(b)
+'!bunch.Bunch\nfoo: !bunch.Bunch {lol: true}\nhello: 42\nponies: are pretty!\n'
+>>> yaml.safe_dump(b)
+'foo: {lol: true}\nhello: 42\nponies: are pretty!\n'
+
+In addition, Bunch instances will have a ``toYAML()`` method that returns the YAML string
+using ``yaml.safe_dump()``. This method also replaces ``__str__`` if present, as I find it
+far more readable. You can revert back to Python's default use of ``__repr__`` with a
+simple assignment: ``Bunch.__str__ = Bunch.__repr__``. The Bunch class will also have a 
+static method ``Bunch.fromYAML()``, which loads a Bunch out of a YAML string.
+
+Finally, Bunch converts easily and recursively to (``unbunchify()``, ``Bunch.toDict()``) and
+from (``bunchify()``, ``Bunch.fromDict()``) a normal ``dict``, making it easy to cleanly 
+serialize them in other formats.
+
+
 Miscellaneous
 -------------
 
-* Bunch converts easily to (``unbunchify``, ``Bunch.toDict``) and from (``bunchify``, ``Bunch.fromDict``) a normal ``dict``, making it easy to cleanly serialize them to JSON or YAML. (In fact, Bunch attempts to register itself with `PyYAML<http://pyyaml.org/wiki/PyYAML>`_ so that Bunches can be transparently dumped and loaded.)
-
 * It is safe to ``import *`` from this module. You'll get: ``Bunch``, ``bunchify``, and ``unbunchify``.
 
-* Tests::
+* Ample doctests::
 
     $ python -m bunch.test -v
 

@@ -23,6 +23,9 @@
     converted via Bunch.to/fromDict().
 """
 
+__version__ = '1.0.1'
+VERSION = tuple(map(int, __version__.split('.')))
+
 __all__ = ('Bunch', 'bunchify','unbunchify',)
 
 
@@ -271,6 +274,33 @@ def unbunchify(x):
         return x
 
 
+### Serialization
+
+try:
+    try:
+        import json
+    except ImportError:
+        import simplejson as json
+    
+    def toJSON(self, **options):
+        """ Serializes this Bunch to JSON. Accepts the same keyword options as `json.dumps()`.
+            
+            >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            >>> json.dumps(b)
+            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
+            >>> b.toJSON()
+            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
+        """
+        return json.dumps(self, **options)
+    
+    Bunch.toJSON = toJSON
+    
+except ImportError:
+    pass
+
+
+
+
 try:
     # Attempt to register ourself with PyYAML as a representer
     import yaml
@@ -330,6 +360,37 @@ try:
     
     Representer.add_representer(Bunch, to_yaml)
     Representer.add_multi_representer(Bunch, to_yaml)
+    
+    
+    # Instance methods for YAML conversion
+    def toYAML(self, **options):
+        """ Serializes this Bunch to YAML, using `yaml.safe_dump()` if 
+            no `Dumper` is provided. See the PyYAML documentation for more info.
+            
+            >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42)
+            >>> import yaml
+            >>> yaml.safe_dump(b, default_flow_style=True)
+            '{foo: [bar, {lol: true}], hello: 42}\\n'
+            >>> b.toYAML(default_flow_style=True)
+            '{foo: [bar, {lol: true}], hello: 42}\\n'
+            >>> yaml.dump(b, default_flow_style=True)
+            '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
+            >>> b.toYAML(Dumper=yaml.Dumper, default_flow_style=True)
+            '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
+        """
+        opts = dict(indent=4, default_flow_style=False)
+        opts.update(options)
+        if 'Dumper' not in opts:
+            return yaml.safe_dump(self, **opts)
+        else:
+            return yaml.dump(self, **opts)
+    
+    def fromYAML(*args, **kwargs):
+        return bunchify( yaml.load(*args, **kwargs) )
+    
+    Bunch.toYAML = Bunch.__str__ = toYAML
+    Bunch.fromYAML = staticmethod(fromYAML)
+    
 except ImportError:
     pass
 
