@@ -388,7 +388,7 @@ try:
     def fromYAML(*args, **kwargs):
         return bunchify( yaml.load(*args, **kwargs) )
     
-    Bunch.toYAML = Bunch.__str__ = toYAML
+    Bunch.toYAML = toYAML
     Bunch.fromYAML = staticmethod(fromYAML)
     
 except ImportError:
