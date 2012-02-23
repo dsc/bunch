@@ -81,9 +81,15 @@ class Bunch(dict):
             >>> b.hello = 'hai'
             >>> 'hello' in b
             True
+            >>> b[None] = 123
+            >>> None in b
+            True
+            >>> b[False] = 456
+            >>> False in b
+            True
         """
         try:
-            return hasattr(self, k) or dict.__contains__(self, k)
+            return dict.__contains__(self, k) or hasattr(self, k)
         except:
             return False
     
