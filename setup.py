@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys, os, re
 from os.path import dirname, abspath, join
-from setuptools import setup
+from setuptools import setup, Extension
 
 
 HERE = abspath(dirname(__file__))
@@ -14,6 +14,8 @@ __version__ = re.sub(
     r'\1',
     [ line.strip() for line in package_file if '__version__' in line ].pop(0)
 )
+
+_bunch = Extension('_bunch', sources = ['bunch/_bunchmodule.c'])
 
 
 setup(
@@ -27,6 +29,7 @@ setup(
     author_email     = "dsc@less.ly",
     
     packages         = ['bunch',],
+    ext_modules      = [_bunch],
     
     keywords         = ['bunch', 'dict', 'mapping', 'container', 'collection'],
     classifiers      = [
