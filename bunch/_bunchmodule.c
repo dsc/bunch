@@ -13,7 +13,6 @@ typedef struct {
     PyDictObject HEAD;
 } Bunch;
 
-
 static PyMethodDef Bunch_methods[] = {
     {NULL,	NULL},
 };
@@ -26,43 +25,53 @@ Bunch_init(Bunch *self, PyObject *args, PyObject *kwds)
     return 0;
 };
 
+/* 
+    __setattr__
+*/
 static int
 Bunch_setattr(PyObject *self, char *name, PyObject *value)
 {
-    PyObject *_name = NULL;
     int result = 0;
     
-    if(PyObject_HasAttrString(self, name)) {
-        _name = PyString_FromString(name);
-        if(_name == NULL) {
-            (void)PyErr_Format(PyExc_MemoryError, "Could not create PyString from char *");
-            return -1;
-        }
-        result = PyObject_GenericSetAttr(self, _name, value);
-        Py_DECREF(_name);
-        
-        /* Unfortunately, the docs don't clearly say 0 will will be returned
-        by PyObject_GenericSetAttr on success so we need this 'if' below.
-        */
-        if(result == _BUNCH_SUCCESS) {
-            return _BUNCH_SUCCESS;
-        }
-        else {
-            return -1;
-        }
+    result = PyDict_SetItemString(self, name, value);
+    if(result == _BUNCH_SUCCESS) {
+        return _BUNCH_SUCCESS;
+    }
+    else {
+        (void)PyErr_Format(PyExc_AttributeError, "(Bunch_setattr) \%s", name);
+        return -1;
+    }
+}
+
+/* 
+    __getattr__
+*/
+static PyObject *
+Bunch_getattr(PyObject *self, const char *name)
+{
+    PyObject *_name = NULL;
+    PyObject *_attr = NULL;
+
+    _name = PyString_FromString(name);
+    if(_name == NULL) {
+        (void)PyErr_Format(PyExc_MemoryError, "(Bunch_getattr) Could not create PyString from char *");
+        return NULL;
     }
     
-    else {
-        result = PyDict_SetItemString(self, name, value);
-        if(result == _BUNCH_SUCCESS) {
-            return _BUNCH_SUCCESS;
-        }
-        else {
-            (void)PyErr_Format(PyExc_AttributeError, "\%s", name);
-            return -1;
-        }
+    _attr = PyObject_GenericGetAttr(self, _name);
+    Py_XDECREF(_name);
+    
+    if(_attr != NULL) {
+        return _attr;
     }
-
+    else {
+        _attr = PyDict_GetItemString(self, name);
+        if(_attr == NULL) {
+            (void)PyErr_Format(PyExc_AttributeError, "(Bunch_getattr) \%s", name);
+            return NULL;
+        }
+        return _attr;
+    }
 }
 
 
@@ -74,7 +83,7 @@ static PyTypeObject BunchType = {
     0,                       /* tp_itemsize */
     0,                       /* tp_dealloc */
     0,                       /* tp_print */
-    0,                       /* tp_getattr */
+    (getattrfunc)Bunch_getattr,           /* tp_getattr */
     (setattrfunc)Bunch_setattr,           /* tp_setattr */
     0,                       /* tp_compare */
     0,                       /* tp_repr */
@@ -88,7 +97,7 @@ static PyTypeObject BunchType = {
     0,                       /* tp_setattro */
     0,                       /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
-      Py_TPFLAGS_BASETYPE,   /* tp_flags */
+      Py_TPFLAGS_BASETYPE | Py_TPFLAGS_DICT_SUBCLASS,   /* tp_flags */
     0,                       /* tp_doc */
     0,                       /* tp_traverse */
     0,                       /* tp_clear */

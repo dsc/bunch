@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 import sys, os, re
 from os.path import dirname, abspath, join
-from setuptools import setup, Extension
+from distutils.command.build_ext import build_ext
+from setuptools import setup, Extension, Command
 
 
 HERE = abspath(dirname(__file__))
@@ -15,8 +16,42 @@ __version__ = re.sub(
     [ line.strip() for line in package_file if '__version__' in line ].pop(0)
 )
 
-_bunch = Extension('_bunch', sources = ['bunch/_bunchmodule.c'])
 
+# BuildFailed and ve_build_ext taken from simplejson (MIT License)
+# https://github.com/simplejson/simplejson/blob/master/setup.py
+# Python 3.x introduces a flag to let the extension harmlessly fail to compile
+# but we're doing 2.x
+
+class BuildFailed(Exception):
+    pass
+
+class ve_build_ext(build_ext):
+    # This class allows C extension building to fail.
+
+    def run(self):
+        try:
+            build_ext.run(self)
+        except DistutilsPlatformError, x:
+            raise BuildFailed()
+
+    def build_extension(self, ext):
+        try:
+            build_ext.build_extension(self, ext)
+        except ext_errors, x:
+            raise BuildFailed()
+
+_simple_bunch_systems = ['linux']
+for system in _simple_bunch_systems:
+    if system in sys.platform:
+        kw = dict(
+            ext_modules = [
+                Extension('_bunch', sources = ['bunch/_bunchmodule.c'])
+            ],
+            cmdclass=dict(build_ext=ve_build_ext),
+        )
+    break
+else:
+    kw = {}
 
 setup(
     name             = "bunch",
@@ -29,7 +64,6 @@ setup(
     author_email     = "dsc@less.ly",
     
     packages         = ['bunch',],
-    ext_modules      = [_bunch],
     
     keywords         = ['bunch', 'dict', 'mapping', 'container', 'collection'],
     classifiers      = [
@@ -47,4 +81,6 @@ setup(
     ],
     # download_url     = "http://pypi.python.org/packages/source/b/bunch/bunch-%s.tar.gz" % __version__,
     license          = 'MIT',
+    
+    **kw
 )
