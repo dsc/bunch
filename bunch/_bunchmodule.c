@@ -11,6 +11,8 @@
 
 typedef struct {
     PyDictObject HEAD;
+    PyObject *object__getattribute__;
+    PyObject *object__setattr__;
 } Bunch;
 
 static PyMethodDef Bunch_methods[] = {
@@ -20,10 +22,44 @@ static PyMethodDef Bunch_methods[] = {
 static int
 Bunch_init(Bunch *self, PyObject *args, PyObject *kwds)
 {
-    if (PyDict_Type.tp_init((PyObject *)self, args, kwds) < 0)
+    if (PyDict_Type.tp_init((PyObject *)self, args, kwds) < 0) {
         return -1;
+    }
+    
+    PyObject *__builtin__ = PyImport_AddModule("__builtin__");
+    
+    PyObject *object = PyObject_GetAttrString(__builtin__, "object"); /* New ref */
+    if(object == NULL) {
+        return -1;
+    }
+    
+    PyObject *__getattribute__ = PyObject_GetAttrString(object, "__getattribute__"); /* New ref */
+    if(__getattribute__ == NULL) {
+        Py_XDECREF(object);
+        return -1;
+    }
+    
+    PyObject *__setattr__ = PyObject_GetAttrString(object, "__setattr__"); /* New ref */
+    if(__setattr__ == NULL) {
+        Py_XDECREF(object);
+        Py_XDECREF(__getattribute__);
+        return -1;
+    }
+    
+    self->object__getattribute__ = __getattribute__;
+    self->object__setattr__ = __setattr__;
+    
+    Py_XDECREF(object);
     return 0;
 };
+
+static void
+Bunch_dealloc(Bunch *self)
+{
+    Py_XDECREF(self->object__getattribute__);
+    Py_XDECREF(self->object__setattr__);
+    ((PyObject *)self)->ob_type->tp_free(self);
+}
 
 /* 
     __setattr__
@@ -44,16 +80,9 @@ Bunch_setattro(PyObject *self, PyObject *_k, PyObject *_v)
             object.__setattr__(self, k, v)                   # 4)
     */
     
-    char *k = PyString_AsString(_k);
-    
-    PyObject *__builtin__ = PyImport_AddModule("__builtin__");
-    PyObject *object = PyObject_GetAttrString(__builtin__, "object"); /* New ref */
-    
     /* 1) Try getting ahold of an attribute first ..
     */
-    PyObject *ret = PyObject_CallMethod(object, "__getattribute__", "Os", self, k); /* New ref */
-    Py_XDECREF(object);
-    
+    PyObject *ret = PyObject_CallFunctionObjArgs(((Bunch *)self)->object__getattribute__, self, _k, NULL);
     PyObject *err_occurred = PyErr_Occurred();
     
     if(err_occurred) {
@@ -68,7 +97,7 @@ Bunch_setattro(PyObject *self, PyObject *_k, PyObject *_v)
             }
             else {
                 /* 3) .. give up with an AttributeError */
-                (void)PyErr_Format(PyExc_AttributeError, "\%s", k);
+                (void)PyErr_Format(PyExc_AttributeError, "\%s", PyString_AsString(_k));
                 return -1;
             }
         }
@@ -98,16 +127,9 @@ Bunch_getattro(PyObject *self, PyObject *_k)
                 raise AttributeError(k)                      # 3)
     */
     
-    char *k = PyString_AsString(_k);
-    
-    PyObject *__builtin__ = PyImport_AddModule("__builtin__");
-    PyObject *object = PyObject_GetAttrString(__builtin__, "object");
-    
     /* 1) Try getting ahold of an attribute first ..
     */
-    PyObject *ret = PyObject_CallMethod(object, "__getattribute__", "Os", self, k); /* New ref */
-    Py_XDECREF(object);
-    
+    PyObject *ret = PyObject_CallFunctionObjArgs(((Bunch *)self)->object__getattribute__, self, _k, NULL);
     PyObject *err_occurred = PyErr_Occurred();
     
     if(err_occurred) {
@@ -123,7 +145,7 @@ Bunch_getattro(PyObject *self, PyObject *_k)
             }
             else {
                 /* 3) .. give up with an AttributeError */
-                (void)PyErr_Format(PyExc_AttributeError, "\%s", k);
+                (void)PyErr_Format(PyExc_AttributeError, "\%s", PyString_AsString(_k));
                 return NULL;
             }
         }
@@ -144,7 +166,7 @@ static PyTypeObject BunchType = {
     "bunch._bunch.Bunch",           /* tp_name */
     sizeof(Bunch),           /* tp_basicsize */
     0,                       /* tp_itemsize */
-    0,                       /* tp_dealloc */
+    Bunch_dealloc,                       /* tp_dealloc */
     0,                       /* tp_print */
     0,                       /* tp_getattr */
     0,                       /* tp_setattr */
