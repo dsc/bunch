@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys, os, re
 from os.path import dirname, abspath, join
-from distutils.command.build_ext import build_ext
-from setuptools import setup, Extension, Command
+from setuptools import setup, Extension
 
 
 HERE = abspath(dirname(__file__))
@@ -16,30 +15,6 @@ __version__ = re.sub(
     [ line.strip() for line in package_file if '__version__' in line ].pop(0)
 )
 
-
-# BuildFailed and ve_build_ext taken from simplejson (MIT License)
-# https://github.com/simplejson/simplejson/blob/master/setup.py
-# Python 3.x introduces a flag to let the extension harmlessly fail to compile
-# but we're doing 2.x
-
-class BuildFailed(Exception):
-    pass
-
-class ve_build_ext(build_ext):
-    # This class allows C extension building to fail.
-
-    def run(self):
-        try:
-            build_ext.run(self)
-        except DistutilsPlatformError, x:
-            raise BuildFailed()
-
-    def build_extension(self, ext):
-        try:
-            build_ext.build_extension(self, ext)
-        except ext_errors, x:
-            raise BuildFailed()
-
 _simple_bunch_systems = ['linux']
 for system in _simple_bunch_systems:
     if system in sys.platform:
@@ -47,7 +22,6 @@ for system in _simple_bunch_systems:
             ext_modules = [
                 Extension('_bunch', sources = ['bunch/_bunchmodule.c'])
             ],
-            cmdclass=dict(build_ext=ve_build_ext),
         )
     break
 else:
