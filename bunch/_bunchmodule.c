@@ -80,10 +80,13 @@ Bunch_setattro(PyObject *self, PyObject *_k, PyObject *_v)
             object.__setattr__(self, k, v)                   # 4)
     */
     
+    PyObject *ret = NULL;
+    PyObject *err_occurred = NULL;
+    
     /* 1) Try getting ahold of an attribute first ..
     */
-    PyObject *ret = PyObject_CallFunctionObjArgs(((Bunch *)self)->object__getattribute__, self, _k, NULL);
-    PyObject *err_occurred = PyErr_Occurred();
+    ret = PyObject_CallFunctionObjArgs(((Bunch *)self)->object__getattribute__, self, _k, NULL);
+    err_occurred = PyErr_Occurred();
     
     if(err_occurred) {
         Py_XDECREF(ret);
@@ -96,16 +99,25 @@ Bunch_setattro(PyObject *self, PyObject *_k, PyObject *_v)
                 return 0;
             }
             else {
-                /* 3) .. give up with an AttributeError */
+                /* 3) .. give up with an AttributeError .. */
                 (void)PyErr_Format(PyExc_AttributeError, "\%s", PyString_AsString(_k));
                 return -1;
             }
         }
         else {
+            /* Some exception but not an AttributeError */
             return -1;
         }
     }
     else {
+        /* 4) .. no error so we actually have an atrribute of the name we tried in 1) */
+        ret = PyObject_CallFunctionObjArgs(((Bunch *)self)->object__setattr__, self, _k, _v, NULL);
+        err_occurred = PyErr_Occurred();        
+        
+        if(err_occurred) {
+            Py_XDECREF(ret);
+            return -1;
+        }
         return 0;
     }
 }
