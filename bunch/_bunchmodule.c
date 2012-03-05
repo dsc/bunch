@@ -5,10 +5,6 @@
 
 #include <Python.h>
 
-#ifndef _BUNCH_SUCCESS
-#define _BUNCH_SUCCESS 0
-#endif
-
 typedef struct {
     PyDictObject HEAD;
     PyObject *object__getattribute__;
