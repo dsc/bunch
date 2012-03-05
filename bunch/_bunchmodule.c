@@ -174,7 +174,7 @@ static PyTypeObject BunchType = {
     "bunch._bunch.Bunch",           /* tp_name */
     sizeof(Bunch),           /* tp_basicsize */
     0,                       /* tp_itemsize */
-    Bunch_dealloc,                       /* tp_dealloc */
+    (destructor)Bunch_dealloc,           /* tp_dealloc */
     0,                       /* tp_print */
     0,                       /* tp_getattr */
     0,                       /* tp_setattr */
