@@ -29,17 +29,55 @@ Bunch_init(Bunch *self, PyObject *args, PyObject *kwds)
     __setattr__
 */
 static int
-Bunch_setattr(PyObject *self, char *name, PyObject *value)
+Bunch_setattro(PyObject *self, PyObject *_k, PyObject *_v)
 {
-    int result = 0;
+    /* Python code is:
     
-    result = PyDict_SetItemString(self, name, value);
-    if(result == _BUNCH_SUCCESS) {
-        return _BUNCH_SUCCESS;
+        try:
+            object.__getattribute__(self, k)                 # 1)
+        except AttributeError:
+            try:
+                self[k] = v                                  # 2)
+            except:
+                raise AttributeError(k)                      # 3)
+        else:
+            object.__setattr__(self, k, v)                   # 4)
+    */
+    
+    char *k = PyString_AsString(_k);
+    
+    PyObject *__builtin__ = PyImport_AddModule("__builtin__");
+    PyObject *object = PyObject_GetAttrString(__builtin__, "object"); /* New ref */
+    
+    /* 1) Try getting ahold of an attribute first ..
+    */
+    PyObject *ret = PyObject_CallMethod(object, "__getattribute__", "Os", self, k); /* New ref */
+    Py_XDECREF(object);
+    
+    PyObject *err_occurred = PyErr_Occurred();
+    
+    if(err_occurred) {
+        Py_XDECREF(ret);
+        if(PyErr_ExceptionMatches(PyExc_AttributeError)) {
+        
+            /* 2) .. ignore AttributeError and attempt to insert a key .. */
+            PyErr_Clear();
+            int set_item_result = PyDict_SetItem(self, _k, _v);
+            if(set_item_result == 0) {
+                return 0;
+            }
+            else {
+                /* 3) .. give up with an AttributeError */
+                (void)PyErr_Format(PyExc_AttributeError, "\%s", k);
+                return -1;
+            }
+        }
+        else {
+            return -1;
+        }
     }
     else {
-        (void)PyErr_Format(PyExc_AttributeError, "(Bunch_setattr) \%s", name);
-        return -1;
+        return 0;
     }
 }
 
@@ -47,31 +85,56 @@ Bunch_setattr(PyObject *self, char *name, PyObject *value)
     __getattr__
 */
 static PyObject *
-Bunch_getattr(PyObject *self, const char *name)
+Bunch_getattro(PyObject *self, PyObject *_k)
 {
-    PyObject *_name = NULL;
-    PyObject *_attr = NULL;
-
-    _name = PyString_FromString(name);
-    if(_name == NULL) {
-        (void)PyErr_Format(PyExc_MemoryError, "(Bunch_getattr) Could not create PyString from char *");
-        return NULL;
-    }
+    /* Python code is:
     
-    _attr = PyObject_GenericGetAttr(self, _name);
-    Py_XDECREF(_name);
+        try:
+            return object.__getattribute__(self, k)          # 1)
+        except AttributeError:
+            try:
+                return self[k]                               # 2)
+            except KeyError:
+                raise AttributeError(k)                      # 3)
+    */
     
-    if(_attr != NULL) {
-        return _attr;
-    }
-    else {
-        _attr = PyDict_GetItemString(self, name);
-        if(_attr == NULL) {
-            (void)PyErr_Format(PyExc_AttributeError, "(Bunch_getattr) \%s", name);
+    char *k = PyString_AsString(_k);
+    
+    PyObject *__builtin__ = PyImport_AddModule("__builtin__");
+    PyObject *object = PyObject_GetAttrString(__builtin__, "object");
+    
+    /* 1) Try getting ahold of an attribute first ..
+    */
+    PyObject *ret = PyObject_CallMethod(object, "__getattribute__", "Os", self, k); /* New ref */
+    Py_XDECREF(object);
+    
+    PyObject *err_occurred = PyErr_Occurred();
+    
+    if(err_occurred) {
+        Py_XDECREF(ret);
+        if(PyErr_ExceptionMatches(PyExc_AttributeError)) {
+        
+            /* 2) .. ignore AttributeError and see if there's a key of that name .. */
+            PyErr_Clear();
+            PyObject *item = PyDict_GetItem(self, _k); /* Borrowed ref */
+            if(item != NULL) {
+                Py_INCREF(item);
+                return item;
+            }
+            else {
+                /* 3) .. give up with an AttributeError */
+                (void)PyErr_Format(PyExc_AttributeError, "\%s", k);
+                return NULL;
+            }
+        }
+        else {
             return NULL;
         }
-        return _attr;
     }
+    else {
+        return ret;
+    }
+
 }
 
 
@@ -83,8 +146,8 @@ static PyTypeObject BunchType = {
     0,                       /* tp_itemsize */
     0,                       /* tp_dealloc */
     0,                       /* tp_print */
-    (getattrfunc)Bunch_getattr,           /* tp_getattr */
-    (setattrfunc)Bunch_setattr,           /* tp_setattr */
+    0,                       /* tp_getattr */
+    0,                       /* tp_setattr */
     0,                       /* tp_compare */
     0,                       /* tp_repr */
     0,                       /* tp_as_number */
@@ -93,8 +156,8 @@ static PyTypeObject BunchType = {
     0,                       /* tp_hash */
     0,                       /* tp_call */
     0,                       /* tp_str */
-    0,                       /* tp_getattro */
-    0,                       /* tp_setattro */
+    (getattrofunc)Bunch_getattro,                       /* tp_getattro */
+    (setattrofunc)Bunch_setattro,                       /* tp_setattro */
     0,                       /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
       Py_TPFLAGS_BASETYPE | Py_TPFLAGS_DICT_SUBCLASS,   /* tp_flags */
@@ -124,12 +187,14 @@ init_bunch(void)
     PyObject *m;
 
     BunchType.tp_base = &PyDict_Type;
-    if (PyType_Ready(&BunchType) < 0)
+    if (PyType_Ready(&BunchType) < 0) {
         return;
+    }
 
     m = Py_InitModule3("_bunch", NULL, "Bunch module (C implementation)");
-    if (m == NULL)
+    if (m == NULL) {
         return;
+    }
 
     Py_INCREF(&BunchType);
     PyModule_AddObject(m, "Bunch", (PyObject *) &BunchType);
