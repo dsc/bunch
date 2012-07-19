@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys, os, re
 from os.path import dirname, abspath, join
-from setuptools import setup
+from setuptools import setup, Extension
 
 
 HERE = abspath(dirname(__file__))
@@ -15,6 +15,17 @@ __version__ = re.sub(
     [ line.strip() for line in package_file if '__version__' in line ].pop(0)
 )
 
+_simple_bunch_systems = ['linux']
+for system in _simple_bunch_systems:
+    if system in sys.platform:
+        kw = dict(
+            ext_modules = [
+                Extension('_bunch', sources = ['bunch/_bunchmodule.c'])
+            ],
+        )
+    break
+else:
+    kw = {}
 
 setup(
     name             = "bunch",
@@ -44,4 +55,6 @@ setup(
     ],
     # download_url     = "http://pypi.python.org/packages/source/b/bunch/bunch-%s.tar.gz" % __version__,
     license          = 'MIT',
+    
+    **kw
 )
