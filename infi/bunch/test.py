@@ -3,7 +3,7 @@
 import sys
 
 def test():
-    import bunch
+    from infi import bunch
     import doctest
     returned = doctest.testmod(bunch)
     return returned.failed

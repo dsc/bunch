@@ -1,5 +1,7 @@
-bunch
-=====
+infi.bunch
+==========
+
+infi.bunch is a fork of David Schoonover's bunch package, providing similar functionality. 99% of the work was done by him, and the fork was made mainly for lack of responsiveness for fixes and maintenance on the original code.
 
 Bunch is a dictionary that supports attribute-style access, a la JavaScript.
 
