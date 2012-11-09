@@ -33,7 +33,7 @@ try:
 except ImportError:
     from dummy_thread import get_ident as _get_ident
 
-from .python3_compat import *
+from bunch.python3_compat import u, iteritems, iterkeys
 
 class Bunch(dict):
     """ A dictionary that provides attribute-style access.
