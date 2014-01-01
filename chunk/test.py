@@ -3,9 +3,9 @@
 import sys
 
 def test():
-    from infi import bunch
+    import chunk
     import doctest
-    returned = doctest.testmod(bunch)
+    returned = doctest.testmod(chunk)
     return returned.failed
 
 if __name__ == '__main__':

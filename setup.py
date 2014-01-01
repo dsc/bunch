@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 HERE = abspath(dirname(__file__))
 readme = open(join(HERE, 'README.rst')).read()
 
-package_file = open(join(HERE, 'infi', 'bunch', '__init__.py'), 'rU')
+package_file = open(join(HERE, 'chunk', '__init__.py'), 'rU')
 __version__ = re.sub(
     r".*\b__version__\s+=\s+'([^']+)'.*",
     r'\1',
@@ -17,18 +17,17 @@ __version__ = re.sub(
 
 
 setup(
-    name             = "infi.bunch",
+    name             = "chunk",
     version          = __version__,
     description      = "A dot-accessible dictionary (a la JavaScript objects)",
     long_description = readme,
-    url              = "http://github.com/Infinidat/infi.bunch",
-    
+    url              = "http://github.com/Infinidat/chunk",
+
     author           = "Rotem Yaari",
     author_email     = "vmalloc@gmail.com",
-    
+
     packages         = find_packages(exclude=["tests"]),
-    namespace_packages = ["infi"],
-    keywords         = ['bunch', 'dict', 'mapping', 'container', 'collection'],
+    keywords         = ['chunk', 'dict', 'mapping', 'container', 'collection'],
     classifiers      = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
