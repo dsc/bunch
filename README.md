@@ -88,36 +88,10 @@ Miscellaneous
 -------------
 
 * It is safe to ``import *`` from this module. You'll get: ``Chunk``, ``chunkify``, and ``unchunkify``.
-* Ample doctests
-
-        $ python -m chunk.test
-        $ python -m chunk.test -v | tail -n22
-        1 items had no tests:
-            chunk.fromYAML
-        16 items passed all tests:
-           8 tests in chunk
-          13 tests in chunk.Chunk
-           7 tests in chunk.Chunk.__contains__
-           4 tests in chunk.Chunk.__delattr__
-           7 tests in chunk.Chunk.__getattr__
-           3 tests in chunk.Chunk.__repr__
-           5 tests in chunk.Chunk.__setattr__
-           2 tests in chunk.Chunk.fromDict
-           2 tests in chunk.Chunk.toDict
-           5 tests in chunk.chunkify
-           2 tests in chunk.from_yaml
-           3 tests in chunk.toJSON
-           6 tests in chunk.toYAML
-           3 tests in chunk.to_yaml
-           3 tests in chunk.to_yaml_safe
-           4 tests in chunk.unchunkify
-        77 tests in 17 items.
-        77 passed and 0 failed.
-        Test passed.
-
+* Ample Tests. Just run ``make test`` from the project root.
 
 Feedback
 --------
 
-Open a ticket / fork the project on [GitHub](http://github.com/dsc/chunk), or send me an email at [dsc@less.ly](mailto:dsc@less.ly).
+Open a ticket / fork the project on [GitHub](http://github.com/Infinidat/chunk).
 
