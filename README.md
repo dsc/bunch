@@ -1,7 +1,7 @@
 chunk
 ==========
 
-chunk is a fork of David Schoonover's chunk package, providing similar functionality. 99% of the work was done by him, and the fork was made mainly for lack of responsiveness for fixes and maintenance on the original code.
+chunk is a fork of David Schoonover's **Bunch** package, providing similar functionality. 99% of the work was done by him, and the fork was made mainly for lack of responsiveness for fixes and maintenance on the original code.
 
 Chunk is a dictionary that supports attribute-style access, a la JavaScript.
 
