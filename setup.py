@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 
 HERE = abspath(dirname(__file__))
-readme = open(join(HERE, 'README.rst')).read()
+readme = open(join(HERE, 'README.md')).read()
 
 package_file = open(join(HERE, 'munch', '__init__.py'), 'rU')
 __version__ = re.sub(
