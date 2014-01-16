@@ -3,9 +3,9 @@
 import sys
 
 def test():
-    import chunk
+    import munch
     import doctest
-    returned = doctest.testmod(chunk)
+    returned = doctest.testmod(munch)
     return returned.failed
 
 if __name__ == '__main__':

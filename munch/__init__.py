@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Chunk is a subclass of dict with attribute-style access.
+""" Munch is a subclass of dict with attribute-style access.
 
-    >>> b = Chunk()
+    >>> b = Munch()
     >>> b.hello = 'world'
     >>> b.hello
     'world'
     >>> b['hello'] += "!"
     >>> b.hello
     'world!'
-    >>> b.foo = Chunk(lol=True)
+    >>> b.foo = Munch(lol=True)
     >>> b.foo.lol
     True
     >>> b.foo is b['foo']
@@ -17,36 +17,36 @@
 
     It is safe to import * from this module:
 
-        __all__ = ('Chunk', 'chunkify','unchunkify')
+        __all__ = ('Munch', 'munchify','unmunchify')
 
-    un/chunkify provide dictionary conversion; Chunkes can also be
-    converted via Chunk.to/fromDict().
+    un/munchify provide dictionary conversion; Munches can also be
+    converted via Munch.to/fromDict().
 """
 
 __version__ = '2.0.0'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Chunk', 'chunkify','unchunkify',)
+__all__ = ('Munch', 'munchify','unmunchify',)
 
 from .python3_compat import *
 
-class Chunk(dict):
+class Munch(dict):
     """ A dictionary that provides attribute-style access.
 
-        >>> b = Chunk()
+        >>> b = Munch()
         >>> b.hello = 'world'
         >>> b.hello
         'world'
         >>> b['hello'] += "!"
         >>> b.hello
         'world!'
-        >>> b.foo = Chunk(lol=True)
+        >>> b.foo = Munch(lol=True)
         >>> b.foo.lol
         True
         >>> b.foo is b['foo']
         True
 
-        A Chunk is a subclass of dict; it supports all the methods a dict does...
+        A Munch is a subclass of dict; it supports all the methods a dict does...
 
         >>> sorted(b.keys())
         ['foo', 'hello']
@@ -55,23 +55,23 @@ class Chunk(dict):
 
         >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
         >>> print (repr(b))
-        Chunk(foo=Chunk(lol=True), hello=42, ponies='are pretty!')
+        Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
 
         As well as iteration...
 
         >>> [ (k,b[k]) for k in b ]
-        [('ponies', 'are pretty!'), ('foo', Chunk(lol=True)), ('hello', 42)]
+        [('ponies', 'are pretty!'), ('foo', Munch(lol=True)), ('hello', 42)]
 
         And "splats".
 
-        >>> "The {knights} who say {ni}!".format(**Chunk(knights='lolcats', ni='can haz'))
+        >>> "The {knights} who say {ni}!".format(**Munch(knights='lolcats', ni='can haz'))
         'The lolcats who say can haz!'
 
-        See unchunkify/Chunk.toDict, chunkify/Chunk.fromDict for notes about conversion.
+        See unmunchify/Munch.toDict, munchify/Munch.fromDict for notes about conversion.
     """
 
     def __contains__(self, k):
-        """ >>> b = Chunk(ponies='are pretty!')
+        """ >>> b = Munch(ponies='are pretty!')
             >>> 'ponies' in b
             True
             >>> 'foo' in b
@@ -100,7 +100,7 @@ class Chunk(dict):
 
             nb. __getattr__ is only called if key is not found in normal places.
 
-            >>> b = Chunk(bar='baz', lol={})
+            >>> b = Munch(bar='baz', lol={})
             >>> b.foo
             Traceback (most recent call last):
                 ...
@@ -129,12 +129,12 @@ class Chunk(dict):
 
     def __setattr__(self, k, v):
         """ Sets attribute k if it exists, otherwise sets key k. A KeyError
-            raised by set-item (only likely if you subclass Chunk) will
+            raised by set-item (only likely if you subclass Munch) will
             propagate as an AttributeError instead.
 
-            >>> b = Chunk(foo='bar', this_is='useful when subclassing')
+            >>> b = Munch(foo='bar', this_is='useful when subclassing')
             >>> b.values                            #doctest: +ELLIPSIS
-            <built-in method values of Chunk object at 0x...>
+            <built-in method values of Munch object at 0x...>
             >>> b.values = 'uh oh'
             >>> b.values
             'uh oh'
@@ -159,11 +159,11 @@ class Chunk(dict):
             raised by deleting the key--such as when the key is missing--will
             propagate as an AttributeError instead.
 
-            >>> b = Chunk(lol=42)
+            >>> b = Munch(lol=42)
             >>> del b.values
             Traceback (most recent call last):
                 ...
-            AttributeError: 'Chunk' object attribute 'values' is read-only
+            AttributeError: 'Munch' object attribute 'values' is read-only
             >>> del b.lol
             >>> b.lol
             Traceback (most recent call last):
@@ -182,24 +182,24 @@ class Chunk(dict):
             object.__delattr__(self, k)
 
     def toDict(self):
-        """ Recursively converts a chunk back into a dictionary.
+        """ Recursively converts a munch back into a dictionary.
 
-            >>> b = Chunk(foo=Chunk(lol=True), hello=42, ponies='are pretty!')
+            >>> b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
             >>> b.toDict()
             {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
 
-            See unchunkify for more info.
+            See unmunchify for more info.
         """
-        return unchunkify(self)
+        return unmunchify(self)
 
     def __repr__(self):
-        """ Invertible* string-form of a Chunk.
+        """ Invertible* string-form of a Munch.
 
-            >>> b = Chunk(foo=Chunk(lol=True), hello=42, ponies='are pretty!')
+            >>> b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
             >>> print (repr(b))
-            Chunk(foo=Chunk(lol=True), hello=42, ponies='are pretty!')
+            Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
             >>> eval(repr(b))
-            Chunk(foo=Chunk(lol=True), hello=42, ponies='are pretty!')
+            Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
 
             (*) Invertible so long as collection contents are each repr-invertible.
         """
@@ -210,36 +210,36 @@ class Chunk(dict):
 
     @staticmethod
     def fromDict(d):
-        """ Recursively transforms a dictionary into a Chunk via copy.
+        """ Recursively transforms a dictionary into a Munch via copy.
 
-            >>> b = Chunk.fromDict({'urmom': {'sez': {'what': 'what'}}})
+            >>> b = Munch.fromDict({'urmom': {'sez': {'what': 'what'}}})
             >>> b.urmom.sez.what
             'what'
 
-            See chunkify for more info.
+            See munchify for more info.
         """
-        return chunkify(d)
+        return munchify(d)
 
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
-# chunkify is more likely to "do what you mean" if it is conservative about
+# munchify is more likely to "do what you mean" if it is conservative about
 # casting (ex: isinstance(str,Iterable) == True ).
 #
 # Should you disagree, it is not difficult to duplicate this function with
 # more aggressive coercion to suit your own purposes.
 
-def chunkify(x):
-    """ Recursively transforms a dictionary into a Chunk via copy.
+def munchify(x):
+    """ Recursively transforms a dictionary into a Munch via copy.
 
-        >>> b = chunkify({'urmom': {'sez': {'what': 'what'}}})
+        >>> b = munchify({'urmom': {'sez': {'what': 'what'}}})
         >>> b.urmom.sez.what
         'what'
 
-        chunkify can handle intermediary dicts, lists and tuples (as well as
+        munchify can handle intermediary dicts, lists and tuples (as well as
         their subclasses), but ymmv on custom datatypes.
 
-        >>> b = chunkify({ 'lol': ('cats', {'hah':'i win again'}),
+        >>> b = munchify({ 'lol': ('cats', {'hah':'i win again'}),
         ...         'hello': [{'french':'salut', 'german':'hallo'}] })
         >>> b.hello[0].french
         'salut'
@@ -249,34 +249,34 @@ def chunkify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return Chunk( (k, chunkify(v)) for k,v in iteritems(x) )
+        return Munch( (k, munchify(v)) for k,v in iteritems(x) )
     elif isinstance(x, (list, tuple)):
-        return type(x)( chunkify(v) for v in x )
+        return type(x)( munchify(v) for v in x )
     else:
         return x
 
-def unchunkify(x):
-    """ Recursively converts a Chunk into a dictionary.
+def unmunchify(x):
+    """ Recursively converts a Munch into a dictionary.
 
-        >>> b = Chunk(foo=Chunk(lol=True), hello=42, ponies='are pretty!')
-        >>> unchunkify(b)
+        >>> b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
+        >>> unmunchify(b)
         {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
 
-        unchunkify will handle intermediary dicts, lists and tuples (as well as
+        unmunchify will handle intermediary dicts, lists and tuples (as well as
         their subclasses), but ymmv on custom datatypes.
 
-        >>> b = Chunk(foo=['bar', Chunk(lol=True)], hello=42,
-        ...         ponies=('are pretty!', Chunk(lies='are trouble!')))
-        >>> unchunkify(b) #doctest: +NORMALIZE_WHITESPACE
+        >>> b = Munch(foo=['bar', Munch(lol=True)], hello=42,
+        ...         ponies=('are pretty!', Munch(lies='are trouble!')))
+        >>> unmunchify(b) #doctest: +NORMALIZE_WHITESPACE
         {'ponies': ('are pretty!', {'lies': 'are trouble!'}),
          'foo': ['bar', {'lol': True}], 'hello': 42}
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return dict( (k, unchunkify(v)) for k,v in iteritems(x) )
+        return dict( (k, unmunchify(v)) for k,v in iteritems(x) )
     elif isinstance(x, (list, tuple)):
-        return type(x)( unchunkify(v) for v in x )
+        return type(x)( unmunchify(v) for v in x )
     else:
         return x
 
@@ -290,9 +290,9 @@ try:
         import simplejson as json
 
     def toJSON(self, **options):
-        """ Serializes this Chunk to JSON. Accepts the same keyword options as `json.dumps()`.
+        """ Serializes this Munch to JSON. Accepts the same keyword options as `json.dumps()`.
 
-            >>> b = Chunk(foo=Chunk(lol=True), hello=42, ponies='are pretty!')
+            >>> b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
             >>> json.dumps(b)
             '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
             >>> b.toJSON()
@@ -300,7 +300,7 @@ try:
         """
         return json.dumps(self, **options)
 
-    Chunk.toJSON = toJSON
+    Munch.toJSON = toJSON
 
 except ImportError:
     pass
@@ -314,34 +314,34 @@ try:
     from yaml.representer import Representer, SafeRepresenter
 
     def from_yaml(loader, node):
-        """ PyYAML support for Chunkes using the tag `!chunk` and `!chunk.Chunk`.
+        """ PyYAML support for Munches using the tag `!munch` and `!munch.Munch`.
 
             >>> import yaml
             >>> yaml.load('''
-            ... Flow style: !chunk.Chunk { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
-            ... Block style: !chunk
+            ... Flow style: !munch.Munch { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
+            ... Block style: !munch
             ...   Clark : Evans
             ...   Brian : Ingerson
             ...   Oren  : Ben-Kiki
             ... ''') #doctest: +NORMALIZE_WHITESPACE
-            {'Flow style': Chunk(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'),
-             'Block style': Chunk(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki')}
+            {'Flow style': Munch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'),
+             'Block style': Munch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki')}
 
-            This module registers itself automatically to cover both Chunk and any
+            This module registers itself automatically to cover both Munch and any
             subclasses. Should you want to customize the representation of a subclass,
             simply register it with PyYAML yourself.
         """
-        data = Chunk()
+        data = Munch()
         yield data
         value = loader.construct_mapping(node)
         data.update(value)
 
 
     def to_yaml_safe(dumper, data):
-        """ Converts Chunk to a normal mapping node, making it appear as a
+        """ Converts Munch to a normal mapping node, making it appear as a
             dict in the YAML output.
 
-            >>> b = Chunk(foo=['bar', Chunk(lol=True)], hello=42)
+            >>> b = Munch(foo=['bar', Munch(lol=True)], hello=42)
             >>> import yaml
             >>> yaml.safe_dump(b, default_flow_style=True)
             '{foo: [bar, {lol: true}], hello: 42}\\n'
@@ -349,41 +349,41 @@ try:
         return dumper.represent_dict(data)
 
     def to_yaml(dumper, data):
-        """ Converts Chunk to a representation node.
+        """ Converts Munch to a representation node.
 
-            >>> b = Chunk(foo=['bar', Chunk(lol=True)], hello=42)
+            >>> b = Munch(foo=['bar', Munch(lol=True)], hello=42)
             >>> import yaml
             >>> yaml.dump(b, default_flow_style=True)
-            '!chunk.Chunk {foo: [bar, !chunk.Chunk {lol: true}], hello: 42}\\n'
+            '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\\n'
         """
-        return dumper.represent_mapping(u('!chunk.Chunk'), data)
+        return dumper.represent_mapping(u('!munch.Munch'), data)
 
 
-    yaml.add_constructor(u('!chunk'), from_yaml)
-    yaml.add_constructor(u('!chunk.Chunk'), from_yaml)
+    yaml.add_constructor(u('!munch'), from_yaml)
+    yaml.add_constructor(u('!munch.Munch'), from_yaml)
 
-    SafeRepresenter.add_representer(Chunk, to_yaml_safe)
-    SafeRepresenter.add_multi_representer(Chunk, to_yaml_safe)
+    SafeRepresenter.add_representer(Munch, to_yaml_safe)
+    SafeRepresenter.add_multi_representer(Munch, to_yaml_safe)
 
-    Representer.add_representer(Chunk, to_yaml)
-    Representer.add_multi_representer(Chunk, to_yaml)
+    Representer.add_representer(Munch, to_yaml)
+    Representer.add_multi_representer(Munch, to_yaml)
 
 
     # Instance methods for YAML conversion
     def toYAML(self, **options):
-        """ Serializes this Chunk to YAML, using `yaml.safe_dump()` if
+        """ Serializes this Munch to YAML, using `yaml.safe_dump()` if
             no `Dumper` is provided. See the PyYAML documentation for more info.
 
-            >>> b = Chunk(foo=['bar', Chunk(lol=True)], hello=42)
+            >>> b = Munch(foo=['bar', Munch(lol=True)], hello=42)
             >>> import yaml
             >>> yaml.safe_dump(b, default_flow_style=True)
             '{foo: [bar, {lol: true}], hello: 42}\\n'
             >>> b.toYAML(default_flow_style=True)
             '{foo: [bar, {lol: true}], hello: 42}\\n'
             >>> yaml.dump(b, default_flow_style=True)
-            '!chunk.Chunk {foo: [bar, !chunk.Chunk {lol: true}], hello: 42}\\n'
+            '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\\n'
             >>> b.toYAML(Dumper=yaml.Dumper, default_flow_style=True)
-            '!chunk.Chunk {foo: [bar, !chunk.Chunk {lol: true}], hello: 42}\\n'
+            '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\\n'
         """
         opts = dict(indent=4, default_flow_style=False)
         opts.update(options)
@@ -393,10 +393,10 @@ try:
             return yaml.dump(self, **opts)
 
     def fromYAML(*args, **kwargs):
-        return chunkify( yaml.load(*args, **kwargs) )
+        return munchify( yaml.load(*args, **kwargs) )
 
-    Chunk.toYAML = toYAML
-    Chunk.fromYAML = staticmethod(fromYAML)
+    Munch.toYAML = toYAML
+    Munch.fromYAML = staticmethod(fromYAML)
 
 except ImportError:
     pass
