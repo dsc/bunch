@@ -1,7 +1,7 @@
 Bunch for lunch
 ===============
 
-*This is a fork of **bunch** which is allegedly not maintained anymore. This Readme is unchanged aside from the Feedback paragraph.*
+*This is a fork of bunch which is allegedly not maintained anymore. This Readme is unchanged aside from the Feedback paragraph.*
 
 *The original project can be found [here](https://github.com/dsc/bunch)*
 
