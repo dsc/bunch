@@ -1,5 +1,7 @@
-bunch
+Lunch
 =====
+
+*This is a fork of `bunch` which is allegedly not maintained anymore. This Readme is unchanged aside from the Feedback paragraph.*
 
 Bunch is a dictionary that supports attribute-style access, a la JavaScript.
 
@@ -87,7 +89,7 @@ Miscellaneous
 
 * It is safe to ``import *`` from this module. You'll get: ``Bunch``, ``bunchify``, and ``unbunchify``.
 * Ample doctests
-    
+
         $ python -m bunch.test
         $ python -m bunch.test -v | tail -n22
         1 items had no tests:
@@ -112,10 +114,3 @@ Miscellaneous
         77 tests in 17 items.
         77 passed and 0 failed.
         Test passed.
-
-
-Feedback
---------
-
-Open a ticket / fork the project on [GitHub](http://github.com/dsc/bunch), or send me an email at [dsc@less.ly](mailto:dsc@less.ly).
-
