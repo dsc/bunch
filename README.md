@@ -1,5 +1,5 @@
-Lunch
-=====
+Bunch for lunch
+===============
 
 *This is a fork of `bunch` which is allegedly not maintained anymore. This Readme is unchanged aside from the Feedback paragraph.*
 
