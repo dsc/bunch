@@ -1,5 +1,9 @@
-bunch
-=====
+Bunch for lunch
+===============
+
+*This is a fork of bunch which is allegedly not maintained anymore. This Readme is unchanged aside from the Feedback paragraph.*
+
+*The original project can be found `here <https://github.com/dsc/bunch/>`_.*
 
 Bunch is a dictionary that supports attribute-style access, a la JavaScript.
 
@@ -99,13 +103,3 @@ Miscellaneous
     77 tests in 17 items.
     77 passed and 0 failed.
     Test passed.
-
-
-Feedback
---------
-
-Open a ticket / fork the project on GitHub_, or send me an email at `dsc@less.ly`_.
-
-.. _PyYAML: http://pyyaml.org/wiki/PyYAML
-.. _GitHub: http://github.com/dsc/bunch
-.. _dsc@less.ly: mailto:dsc@less.ly
