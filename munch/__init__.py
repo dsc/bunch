@@ -208,6 +208,12 @@ class Munch(dict):
         args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
         return '%s(%s)' % (self.__class__.__name__, args)
 
+
+    def __dir__(self):
+        return list(iterkeys(self))
+
+    __members__ = __dir__ # for python2.x compatibility
+
     @staticmethod
     def fromDict(d):
         """ Recursively transforms a dictionary into a Munch via copy.
