@@ -59,8 +59,8 @@ class Bunch(dict):
         
         As well as iteration...
         
-        >>> [ (k,b[k]) for k in b ]
-        [('ponies', 'are pretty!'), ('foo', Bunch(lol=True)), ('hello', 42)]
+        >>> sorted([ (k,b[k]) for k in b ])
+        [('foo', Bunch(lol=True)), ('hello', 42), ('ponies', 'are pretty!')]
         
         And "splats".
         
@@ -160,10 +160,10 @@ class Bunch(dict):
             propagate as an AttributeError instead.
             
             >>> b = Bunch(lol=42)
-            >>> del b.values
+            >>> del b.values  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
             Traceback (most recent call last):
                 ...
-            AttributeError: 'Bunch' object attribute 'values' is read-only
+            AttributeError: ...values...
             >>> del b.lol
             >>> b.lol
             Traceback (most recent call last):
@@ -185,8 +185,9 @@ class Bunch(dict):
         """ Recursively converts a bunch back into a dictionary.
             
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            >>> b.toDict()
-            {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+            >>> b.toDict() == {
+            ...     'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+            True
             
             See unbunchify for more info.
         """
@@ -259,17 +260,19 @@ def unbunchify(x):
     """ Recursively converts a Bunch into a dictionary.
         
         >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-        >>> unbunchify(b)
-        {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+        >>> unbunchify(b) == {'ponies': 'are pretty!', 'foo': {'lol': True},
+        ...                   'hello': 42}
+        True
         
         unbunchify will handle intermediary dicts, lists and tuples (as well as
         their subclasses), but ymmv on custom datatypes.
         
-        >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42, 
+        >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42,
         ...         ponies=('are pretty!', Bunch(lies='are trouble!')))
-        >>> unbunchify(b) #doctest: +NORMALIZE_WHITESPACE
-        {'ponies': ('are pretty!', {'lies': 'are trouble!'}), 
-         'foo': ['bar', {'lol': True}], 'hello': 42}
+        >>> unbunchify(b) == {'ponies': ('are pretty!',
+        ...                              {'lies': 'are trouble!'}),
+        ...                   'foo': ['bar', {'lol': True}], 'hello': 42}
+        True
         
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
@@ -293,10 +296,12 @@ try:
         """ Serializes this Bunch to JSON. Accepts the same keyword options as `json.dumps()`.
             
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            >>> json.dumps(b)
-            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
-            >>> b.toJSON()
-            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
+            >>> json.loads(json.dumps(b)) == {
+            ...     "ponies": "are pretty!", "foo": {"lol": True}, "hello": 42}
+            True
+            >>> json.loads(b.toJSON()) == {
+            ...     "ponies": "are pretty!", "foo": {"lol": True}, "hello": 42}
+            True
         """
         return json.dumps(self, **options)
     
