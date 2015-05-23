@@ -1,6 +1,6 @@
 import platform
 
-_IS_PYTHON_3 = (platform.version() >= '3')
+_IS_PYTHON_3 = (platform.python_version_tuple()[0] >= '3')
 
 identity = lambda x : x
 
