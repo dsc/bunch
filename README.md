@@ -1,10 +1,7 @@
 [![Build Status](https://travis-ci.org/Infinidat/munch.svg?branch=master)](https://travis-ci.org/Infinidat/munch)
-[![Latest Version](https://pypip.in/version/munch/badge.svg)](https://pypi.python.org/pypi/munch/)
-[![Supported Python versions](https://pypip.in/py_versions/munch/badge.svg)](https://pypi.python.org/pypi/munch/)
-[![Supported Python implementations](https://pypip.in/implementation/munch/badge.svg)](https://pypi.python.org/pypi/munch/)
-[![Downloads](https://pypip.in/download/munch/badge.svg)](https://pypi.python.org/pypi/munch/)
-[![Development Status](https://pypip.in/status/munch/badge.svg)](https://pypi.python.org/pypi/munch/)
-[![License](https://pypip.in/license/munch/badge.svg)](https://pypi.python.org/pypi/much/)
+[![Latest Version](https://img.shields.io/pypi/v/munch.svg)](https://pypi.python.org/pypi/munch/)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/munch.svg)](https://pypi.python.org/pypi/munch/)
+[![Downloads](https://img.shields.io/pypi/dm/munch.svg)](https://pypi.python.org/pypi/munch/)
 
 munch
 ==========
