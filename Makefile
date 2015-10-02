@@ -6,7 +6,7 @@ detox-test:
 travis-test: test
 
 test: env
-	.env/bin/py.test tests
+	.env/bin/py.test tests munch --doctest-modules
 
 coverage-test: env
 	.env/bin/coverage run .env/bin/nosetests -w tests
@@ -23,4 +23,3 @@ doc: env
 	.env/bin/python setup.py build_sphinx
 
 .PHONY: doc
-
