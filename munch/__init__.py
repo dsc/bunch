@@ -55,12 +55,12 @@ class Munch(dict):
 
         >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
         >>> print (repr(b))
-        Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
+        Munch({'ponies': 'are pretty!', 'foo': Munch({'lol': True}), 'hello': 42})
 
         As well as iteration...
 
         >>> sorted([ (k,b[k]) for k in b ])
-        [('foo', Munch(lol=True)), ('hello', 42), ('ponies', 'are pretty!')]
+        [('foo', Munch({'lol': True})), ('hello', 42), ('ponies', 'are pretty!')]
 
         And "splats".
 
@@ -193,26 +193,19 @@ class Munch(dict):
 
             >>> b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
             >>> print (repr(b))
-            Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
+            Munch({'ponies': 'are pretty!', 'foo': Munch({'lol': True}), 'hello': 42})
             >>> eval(repr(b))
-            Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
+            Munch({'ponies': 'are pretty!', 'foo': Munch({'lol': True}), 'hello': 42})
 
-            >>> with_spaces = Munch({'a b': 9, 'c': Munch({'simple': 5})})
+            >>> with_spaces = Munch({1: 2, 'a b': 9, 'c': Munch({'simple': 5})})
             >>> print (repr(with_spaces))
-            Munch({'a b': 9, 'c': Munch(simple=5)})
+            Munch({'a b': 9, 1: 2, 'c': Munch({'simple': 5})})
             >>> eval(repr(with_spaces))
-            Munch({'a b': 9, 'c': Munch(simple=5)})
+            Munch({'a b': 9, 1: 2, 'c': Munch({'simple': 5})})
 
             (*) Invertible so long as collection contents are each repr-invertible.
         """
-        keys = list(iterkeys(self))
-        keys.sort()
-        if any(" " in k for k in keys):
-            dict_content = ', '.join(["'%s': %r" % (key, self[key]) for key in keys])
-            return '%s({%s})' % (self.__class__.__name__, dict_content)
-        else:
-            args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
-            return '%s(%s)' % (self.__class__.__name__, args)
+        return '%s(%s)' % (self.__class__.__name__, dict.__repr__(self))
 
 
 
