@@ -1,0 +1,13 @@
+language: python
+sudo: false
+python:
+  - "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "pypy"
+# command to run tests, e.g. python setup.py test
+script: make travis-test
+after_success:
+  coveralls
