@@ -197,12 +197,23 @@ class Munch(dict):
             >>> eval(repr(b))
             Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
 
+            >>> with_spaces = Munch({'a b': 9, 'c': Munch({'simple': 5})})
+            >>> print (repr(with_spaces))
+            Munch({'a b': 9, 'c': Munch(simple=5)})
+            >>> eval(repr(with_spaces))
+            Munch({'a b': 9, 'c': Munch(simple=5)})
+
             (*) Invertible so long as collection contents are each repr-invertible.
         """
         keys = list(iterkeys(self))
         keys.sort()
-        dict_content = ', '.join(["'%s': %r" % (key, self[key]) for key in keys])
-        return '%s({%s})' % (self.__class__.__name__, dict_content)
+        if any(" " in k for k in keys):
+            dict_content = ', '.join(["'%s': %r" % (key, self[key]) for key in keys])
+            return '%s({%s})' % (self.__class__.__name__, dict_content)
+        else:
+            args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
+            return '%s(%s)' % (self.__class__.__name__, args)
+
 
 
     def __dir__(self):
