@@ -201,8 +201,8 @@ class Munch(dict):
         """
         keys = list(iterkeys(self))
         keys.sort()
-        args = ', '.join(['%s=%r' % (key, self[key]) for key in keys])
-        return '%s(%s)' % (self.__class__.__name__, args)
+        dict_content = ', '.join(["'%s': %r" % (key, self[key]) for key in keys])
+        return '%s({%s})' % (self.__class__.__name__, dict_content)
 
 
     def __dir__(self):
