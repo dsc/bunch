@@ -19,12 +19,16 @@ setup(
     version=__version__,
     description="A dot-accessible dictionary (a la JavaScript objects)",
     long_description=readme,
-    url="http://github.com/dsc/bunch",
+    url="https://github.com/F483/neobunch",
     author="David Schoonover",
     author_email="dsc@less.ly",
+    maintainer="Fabian Barkhau",
+    maintainer_email="fabian.barkhau@gmail.com",
     packages=['bunch', ],
     install_requires=["six >= 1.10.0"],
-    keywords=['bunch', 'dict', 'mapping', 'container', 'collection'],
+    keywords=[
+        'neobunch', 'bunch', 'dict', 'mapping', 'container', 'collection'
+    ],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

@@ -1,3 +1,12 @@
+neobunch
+========
+
+This is a fork of the bunch_ package since it was abandoned. It differs in
+name only and remains otherwise compatible with the original package.
+
+.. _bunch: https://github.com/dsc/bunch
+
+
 bunch
 =====
 
@@ -101,11 +110,3 @@ Miscellaneous
     Test passed.
 
 
-Feedback
---------
-
-Open a ticket / fork the project on GitHub_, or send me an email at `dsc@less.ly`_.
-
-.. _PyYAML: http://pyyaml.org/wiki/PyYAML
-.. _GitHub: http://github.com/dsc/bunch
-.. _dsc@less.ly: mailto:dsc@less.ly
