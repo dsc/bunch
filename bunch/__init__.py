@@ -23,12 +23,16 @@
     converted via Bunch.to/fromDict().
 """
 
+from .python3_compat import iteritems
+from .python3_compat import iterkeys
+from .python3_compat import u
+
+
 __version__ = '1.0.1'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Bunch', 'bunchify','unbunchify',)
+__all__ = ('Bunch', 'bunchify', 'unbunchify',)
 
-from .python3_compat import *
 
 class Bunch(dict):
     """ A dictionary that provides attribute-style access.
@@ -46,7 +50,7 @@ class Bunch(dict):
         >>> b.foo is b['foo']
         True
 
-        A Bunch is a subclass of dict; it supports all the methods a dict does...
+        A Bunch is a subclass of dict; it supports all the methods a dict does.
 
         >>> sorted(b.keys())
         ['foo', 'hello']
@@ -59,15 +63,19 @@ class Bunch(dict):
 
         As well as iteration...
 
-        >>> dict([ (k,b[k]) for k in b ]) == dict([('foo', Bunch(lol=True)), ('hello', 42), ('ponies', 'are pretty!')])
+        >>> dict([ (k,b[k]) for k in b ]) == dict([('foo', Bunch(lol=True)),
+        ...     ('hello', 42), ('ponies', 'are pretty!')])
         True
 
         And "splats".
 
-        >>> "The {knights} who say {ni}!".format(**Bunch(knights='lolcats', ni='can haz'))
+        >>> "The {knights} who say {ni}!".format(
+        ...         **Bunch(knights='lolcats', ni='can haz')
+        ... )
         'The lolcats who say can haz!'
 
-        See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
+        See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict
+        for notes about conversion.
     """
 
     def __contains__(self, k):
@@ -182,7 +190,8 @@ class Bunch(dict):
 
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
             >>> d = b.toDict()
-            >>> d == {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+            >>> d == {'ponies': 'are pretty!',
+            ...     'foo': {'lol': True}, 'hello': 42}
             True
 
             See unbunchify for more info.
@@ -198,7 +207,7 @@ class Bunch(dict):
             >>> eval(repr(b))
             Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
 
-            (*) Invertible so long as collection contents are each repr-invertible.
+            (*) Invertible so long as collection contents are repr-invertible.
         """
         keys = list(iterkeys(self))
         keys.sort()
@@ -216,7 +225,6 @@ class Bunch(dict):
             See bunchify for more info.
         """
         return bunchify(d)
-
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
@@ -246,11 +254,12 @@ def bunchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return Bunch( (k, bunchify(v)) for k,v in iteritems(x) )
+        return Bunch((k, bunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)( bunchify(v) for v in x )
+        return type(x)(bunchify(v) for v in x)
     else:
         return x
+
 
 def unbunchify(x):
     """ Recursively converts a Bunch into a dictionary.
@@ -266,20 +275,21 @@ def unbunchify(x):
         >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42,
         ...         ponies=('are pretty!', Bunch(lies='are trouble!')))
         >>> d = unbunchify(b) #doctest: +NORMALIZE_WHITESPACE
-        >>> d == {'ponies': ('are pretty!', {'lies': 'are trouble!'}), 'foo': ['bar', {'lol': True}], 'hello': 42}
+        >>> d == {'ponies': ('are pretty!', {'lies': 'are trouble!'}),
+        ...         'foo': ['bar', {'lol': True}], 'hello': 42}
         True
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return dict( (k, unbunchify(v)) for k,v in iteritems(x) )
+        return dict((k, unbunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)( unbunchify(v) for v in x )
+        return type(x)(unbunchify(v) for v in x)
     else:
         return x
 
 
-### Serialization
+# Serialization
 
 try:
     try:
@@ -307,8 +317,6 @@ except ImportError:
     pass
 
 
-
-
 try:
     # Attempt to register ourself with PyYAML as a representer
     import yaml
@@ -319,24 +327,30 @@ try:
 
             >>> import yaml
             >>> yaml.load('''
-            ... Flow style: !bunch.Bunch { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
+            ... Flow style:
+            ...   !bunch.Bunch { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
             ... Block style: !bunch
             ...   Clark : Evans
             ...   Brian : Ingerson
             ...   Oren  : Ben-Kiki
             ... ''') #doctest: +NORMALIZE_WHITESPACE
-            {'Flow style': Bunch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'),
-             'Block style': Bunch(Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki')}
+            {
+                'Flow style': Bunch(
+                    Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'
+                ),
+                'Block style': Bunch(
+                    Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'
+                )
+            }
 
-            This module registers itself automatically to cover both Bunch and any
-            subclasses. Should you want to customize the representation of a subclass,
-            simply register it with PyYAML yourself.
+            This module registers itself automatically to cover both Bunch and
+            any subclasses. Should you want to customize the representation of
+            a subclass, simply register it with PyYAML yourself.
         """
         data = Bunch()
         yield data
         value = loader.construct_mapping(node)
         data.update(value)
-
 
     def to_yaml_safe(dumper, data):
         """ Converts Bunch to a normal mapping node, making it appear as a
@@ -359,7 +373,6 @@ try:
         """
         return dumper.represent_mapping(u('!bunch.Bunch'), data)
 
-
     yaml.add_constructor(u('!bunch'), from_yaml)
     yaml.add_constructor(u('!bunch.Bunch'), from_yaml)
 
@@ -368,7 +381,6 @@ try:
 
     Representer.add_representer(Bunch, to_yaml)
     Representer.add_multi_representer(Bunch, to_yaml)
-
 
     # Instance methods for YAML conversion
     def toYAML(self, **options):
@@ -394,7 +406,7 @@ try:
             return yaml.dump(self, **opts)
 
     def fromYAML(*args, **kwargs):
-        return bunchify( yaml.load(*args, **kwargs) )
+        return bunchify(yaml.load(*args, **kwargs))
 
     Bunch.toYAML = toYAML
     Bunch.fromYAML = staticmethod(fromYAML)
@@ -406,4 +418,3 @@ except ImportError:
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-
