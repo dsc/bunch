@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" Bunch is a subclass of dict with attribute-style access.
+""" NeoBunch is a subclass of dict with attribute-style access.
 
-    >>> b = Bunch()
+    >>> b = NeoBunch()
     >>> b.hello = 'world'
     >>> b.hello
     'world'
     >>> b['hello'] += "!"
     >>> b.hello
     'world!'
-    >>> b.foo = Bunch(lol=True)
+    >>> b.foo = NeoBunch(lol=True)
     >>> b.foo.lol
     True
     >>> b.foo is b['foo']
@@ -17,10 +17,10 @@
 
     It is safe to import * from this module:
 
-        __all__ = ('Bunch', 'bunchify','unbunchify')
+        __all__ = ('NeoBunch', 'neobunchify','unneobunchify')
 
-    un/bunchify provide dictionary conversion; Bunches can also be
-    converted via Bunch.to/fromDict().
+    un/neobunchify provide dictionary conversion; NeoBunches can also be
+    converted via NeoBunch.to/fromDict().
 """
 
 
@@ -31,26 +31,30 @@ from .python3_compat import u
 
 
 VERSION = tuple(map(int, __version__.split('.')))
-__all__ = ('Bunch', 'bunchify', 'unbunchify',)
+__all__ = (
+    'NeoBunch', 'neobunchify', 'unneobunchify',  # new names
+    'Bunch', 'bunchify', 'unbunchify',  # legacy names
+)
 
 
-class Bunch(dict):
+class NeoBunch(dict):
     """ A dictionary that provides attribute-style access.
 
-        >>> b = Bunch()
+        >>> b = NeoBunch()
         >>> b.hello = 'world'
         >>> b.hello
         'world'
         >>> b['hello'] += "!"
         >>> b.hello
         'world!'
-        >>> b.foo = Bunch(lol=True)
+        >>> b.foo = NeoBunch(lol=True)
         >>> b.foo.lol
         True
         >>> b.foo is b['foo']
         True
 
-        A Bunch is a subclass of dict; it supports all the methods a dict does.
+        A NeoBunch is a subclass of dict;
+        it supports all the methods a dict does.
 
         >>> sorted(b.keys())
         ['foo', 'hello']
@@ -59,27 +63,27 @@ class Bunch(dict):
 
         >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
         >>> print (repr(b))
-        Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+        NeoBunch(foo=NeoBunch(lol=True), hello=42, ponies='are pretty!')
 
         As well as iteration...
 
-        >>> dict([ (k,b[k]) for k in b ]) == dict([('foo', Bunch(lol=True)),
+        >>> dict([ (k,b[k]) for k in b ]) == dict([('foo', NeoBunch(lol=True)),
         ...     ('hello', 42), ('ponies', 'are pretty!')])
         True
 
         And "splats".
 
         >>> "The {knights} who say {ni}!".format(
-        ...         **Bunch(knights='lolcats', ni='can haz')
+        ...         **NeoBunch(knights='lolcats', ni='can haz')
         ... )
         'The lolcats who say can haz!'
 
-        See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict
+        See unneobunchify/NeoBunch.toDict, neobunchify/NeoBunch.fromDict
         for notes about conversion.
     """
 
     def __contains__(self, k):
-        """ >>> b = Bunch(ponies='are pretty!')
+        """ >>> b = NeoBunch(ponies='are pretty!')
             >>> 'ponies' in b
             True
             >>> 'foo' in b
@@ -108,7 +112,7 @@ class Bunch(dict):
 
             nb. __getattr__ is only called if key is not found in normal places.
 
-            >>> b = Bunch(bar='baz', lol={})
+            >>> b = NeoBunch(bar='baz', lol={})
             >>> b.foo
             Traceback (most recent call last):
                 ...
@@ -137,10 +141,10 @@ class Bunch(dict):
 
     def __setattr__(self, k, v):
         """ Sets attribute k if it exists, otherwise sets key k. A KeyError
-            raised by set-item (only likely if you subclass Bunch) will
+            raised by set-item (only likely if you subclass NeoBunch) will
             propagate as an AttributeError instead.
 
-            >>> b = Bunch(foo='bar', this_is='useful when subclassing')
+            >>> b = NeoBunch(foo='bar', this_is='useful when subclassing')
             >>> callable(b.values)
             True
             >>> b.values = 'uh oh'
@@ -167,7 +171,7 @@ class Bunch(dict):
             raised by deleting the key--such as when the key is missing--will
             propagate as an AttributeError instead.
 
-            >>> b = Bunch(lol=42)
+            >>> b = NeoBunch(lol=42)
             >>> del b.lol
             >>> b.lol
             Traceback (most recent call last):
@@ -186,26 +190,28 @@ class Bunch(dict):
             object.__delattr__(self, k)
 
     def toDict(self):
-        """ Recursively converts a bunch back into a dictionary.
+        """ Recursively converts a neobunch back into a dictionary.
 
-            >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            >>> b = NeoBunch(foo=NeoBunch(lol=True), hello=42,
+            ...              ponies='are pretty!')
             >>> d = b.toDict()
             >>> d == {'ponies': 'are pretty!',
             ...     'foo': {'lol': True}, 'hello': 42}
             True
 
-            See unbunchify for more info.
+            See unneobunchify for more info.
         """
-        return unbunchify(self)
+        return unneobunchify(self)
 
     def __repr__(self):
-        """ Invertible* string-form of a Bunch.
+        """ Invertible* string-form of a NeoBunch.
 
-            >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            >>> b = NeoBunch(foo=NeoBunch(lol=True), hello=42,
+            ...              ponies='are pretty!')
             >>> print (repr(b))
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            NeoBunch(foo=NeoBunch(lol=True), hello=42, ponies='are pretty!')
             >>> eval(repr(b))
-            Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            NeoBunch(foo=NeoBunch(lol=True), hello=42, ponies='are pretty!')
 
             (*) Invertible so long as collection contents are repr-invertible.
         """
@@ -216,35 +222,35 @@ class Bunch(dict):
 
     @staticmethod
     def fromDict(d):
-        """ Recursively transforms a dictionary into a Bunch via copy.
+        """ Recursively transforms a dictionary into a NeoBunch via copy.
 
-            >>> b = Bunch.fromDict({'urmom': {'sez': {'what': 'what'}}})
+            >>> b = NeoBunch.fromDict({'urmom': {'sez': {'what': 'what'}}})
             >>> b.urmom.sez.what
             'what'
 
-            See bunchify for more info.
+            See neobunchify for more info.
         """
-        return bunchify(d)
+        return neobunchify(d)
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
-# bunchify is more likely to "do what you mean" if it is conservative about
+# neobunchify is more likely to "do what you mean" if it is conservative about
 # casting (ex: isinstance(str,Iterable) == True ).
 #
 # Should you disagree, it is not difficult to duplicate this function with
 # more aggressive coercion to suit your own purposes.
 
-def bunchify(x):
-    """ Recursively transforms a dictionary into a Bunch via copy.
+def neobunchify(x):
+    """ Recursively transforms a dictionary into a NeoBunch via copy.
 
-        >>> b = bunchify({'urmom': {'sez': {'what': 'what'}}})
+        >>> b = neobunchify({'urmom': {'sez': {'what': 'what'}}})
         >>> b.urmom.sez.what
         'what'
 
-        bunchify can handle intermediary dicts, lists and tuples (as well as
+        neobunchify can handle intermediary dicts, lists and tuples (as well as
         their subclasses), but ymmv on custom datatypes.
 
-        >>> b = bunchify({ 'lol': ('cats', {'hah':'i win again'}),
+        >>> b = neobunchify({ 'lol': ('cats', {'hah':'i win again'}),
         ...         'hello': [{'french':'salut', 'german':'hallo'}] })
         >>> b.hello[0].french
         'salut'
@@ -254,27 +260,27 @@ def bunchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return Bunch((k, bunchify(v)) for k, v in iteritems(x))
+        return NeoBunch((k, neobunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)(bunchify(v) for v in x)
+        return type(x)(neobunchify(v) for v in x)
     else:
         return x
 
 
-def unbunchify(x):
-    """ Recursively converts a Bunch into a dictionary.
+def unneobunchify(x):
+    """ Recursively converts a NeoBunch into a dictionary.
 
-        >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-        >>> d = unbunchify(b)
+        >>> b = NeoBunch(foo=NeoBunch(lol=True), hello=42, ponies='are pretty!')
+        >>> d = unneobunchify(b)
         >>> d == {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
         True
 
-        unbunchify will handle intermediary dicts, lists and tuples (as well as
-        their subclasses), but ymmv on custom datatypes.
+        unneobunchify will handle intermediary dicts, lists and tuples (as well
+        as their subclasses), but ymmv on custom datatypes.
 
-        >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42,
-        ...         ponies=('are pretty!', Bunch(lies='are trouble!')))
-        >>> d = unbunchify(b) #doctest: +NORMALIZE_WHITESPACE
+        >>> b = NeoBunch(foo=['bar', NeoBunch(lol=True)], hello=42,
+        ...         ponies=('are pretty!', NeoBunch(lies='are trouble!')))
+        >>> d = unneobunchify(b) #doctest: +NORMALIZE_WHITESPACE
         >>> d == {'ponies': ('are pretty!', {'lies': 'are trouble!'}),
         ...         'foo': ['bar', {'lol': True}], 'hello': 42}
         True
@@ -282,9 +288,9 @@ def unbunchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return dict((k, unbunchify(v)) for k, v in iteritems(x))
+        return dict((k, unneobunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)(unbunchify(v) for v in x)
+        return type(x)(unneobunchify(v) for v in x)
     else:
         return x
 
@@ -298,11 +304,12 @@ try:
         import simplejson as json
 
     def toJSON(self, **options):
-        """ Serializes this Bunch to JSON.
+        """ Serializes this NeoBunch to JSON.
 
         Accepts the same keyword options as `json.dumps()`.
 
-            >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
+            >>> b = NeoBunch(foo=NeoBunch(lol=True), hello=42,
+            ...              ponies='are pretty!')
             >>> b.toJSON() == json.dumps(b)
             True
             >>> d = {"ponies": "are pretty!", "hello": 42, "foo": {"lol": True}}
@@ -311,7 +318,7 @@ try:
         """
         return json.dumps(self, **options)
 
-    Bunch.toJSON = toJSON
+    NeoBunch.toJSON = toJSON
 
 except ImportError:
     pass
@@ -323,40 +330,44 @@ try:
     from yaml.representer import Representer, SafeRepresenter
 
     def from_yaml(loader, node):
-        """ PyYAML support for Bunches using the tag `!bunch` and `!bunch.Bunch`.
+        """ PyYAML support with the tags `!neobunch` and `!neobunch.NeoBunch`.
 
             >>> import yaml
             >>> yaml.load('''
             ... Flow style:
-            ...   !bunch.Bunch { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
-            ... Block style: !bunch
+            ...   !neobunch.NeoBunch {
+            ...       Clark: Evans,
+            ...       Brian: Ingerson,
+            ...       Oren: Ben-Kiki
+            ...   }
+            ... Block style: !neobunch
             ...   Clark : Evans
             ...   Brian : Ingerson
             ...   Oren  : Ben-Kiki
             ... ''') #doctest: +NORMALIZE_WHITESPACE
             {
-                'Flow style': Bunch(
+                'Flow style': NeoBunch(
                     Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'
                 ),
-                'Block style': Bunch(
+                'Block style': NeoBunch(
                     Brian='Ingerson', Clark='Evans', Oren='Ben-Kiki'
                 )
             }
 
-            This module registers itself automatically to cover both Bunch and
-            any subclasses. Should you want to customize the representation of
-            a subclass, simply register it with PyYAML yourself.
+            This module registers itself automatically to cover both NeoBunch
+            and any subclasses. Should you want to customize the representation
+            of a subclass, simply register it with PyYAML yourself.
         """
-        data = Bunch()
+        data = NeoBunch()
         yield data
         value = loader.construct_mapping(node)
         data.update(value)
 
     def to_yaml_safe(dumper, data):
-        """ Converts Bunch to a normal mapping node, making it appear as a
+        """ Converts NeoBunch to a normal mapping node, making it appear as a
             dict in the YAML output.
 
-            >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42)
+            >>> b = NeoBunch(foo=['bar', NeoBunch(lol=True)], hello=42)
             >>> import yaml
             >>> yaml.safe_dump(b, default_flow_style=True)
             '{foo: [bar, {lol: true}], hello: 42}\\n'
@@ -364,39 +375,39 @@ try:
         return dumper.represent_dict(data)
 
     def to_yaml(dumper, data):
-        """ Converts Bunch to a representation node.
+        """ Converts NeoBunch to a representation node.
 
-            >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42)
+            >>> b = NeoBunch(foo=['bar', NeoBunch(lol=True)], hello=42)
             >>> import yaml
             >>> yaml.dump(b, default_flow_style=True)
-            '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
+            '!neobunch.NeoBunch {foo: [bar, !neobunch.NeoBunch {lol: true}], hello: 42}\\n'
         """
-        return dumper.represent_mapping(u('!bunch.Bunch'), data)
+        return dumper.represent_mapping(u('!neobunch.NeoBunch'), data)
 
-    yaml.add_constructor(u('!bunch'), from_yaml)
-    yaml.add_constructor(u('!bunch.Bunch'), from_yaml)
+    yaml.add_constructor(u('!neobunch'), from_yaml)
+    yaml.add_constructor(u('!neobunch.NeoBunch'), from_yaml)
 
-    SafeRepresenter.add_representer(Bunch, to_yaml_safe)
-    SafeRepresenter.add_multi_representer(Bunch, to_yaml_safe)
+    SafeRepresenter.add_representer(NeoBunch, to_yaml_safe)
+    SafeRepresenter.add_multi_representer(NeoBunch, to_yaml_safe)
 
-    Representer.add_representer(Bunch, to_yaml)
-    Representer.add_multi_representer(Bunch, to_yaml)
+    Representer.add_representer(NeoBunch, to_yaml)
+    Representer.add_multi_representer(NeoBunch, to_yaml)
 
     # Instance methods for YAML conversion
     def toYAML(self, **options):
-        """ Serializes this Bunch to YAML, using `yaml.safe_dump()` if
+        """ Serializes this NeoBunch to YAML, using `yaml.safe_dump()` if
             no `Dumper` is provided. See the PyYAML documentation for more info.
 
-            >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42)
+            >>> b = NeoBunch(foo=['bar', NeoBunch(lol=True)], hello=42)
             >>> import yaml
             >>> yaml.safe_dump(b, default_flow_style=True)
             '{foo: [bar, {lol: true}], hello: 42}\\n'
             >>> b.toYAML(default_flow_style=True)
             '{foo: [bar, {lol: true}], hello: 42}\\n'
             >>> yaml.dump(b, default_flow_style=True)
-            '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
+            '!neobunch.NeoBunch {foo: [bar, !neobunch.NeoBunch {lol: true}], hello: 42}\\n'
             >>> b.toYAML(Dumper=yaml.Dumper, default_flow_style=True)
-            '!bunch.Bunch {foo: [bar, !bunch.Bunch {lol: true}], hello: 42}\\n'
+            '!neobunch.NeoBunch {foo: [bar, !neobunch.NeoBunch {lol: true}], hello: 42}\\n'
         """
         opts = dict(indent=4, default_flow_style=False)
         opts.update(options)
@@ -406,13 +417,19 @@ try:
             return yaml.dump(self, **opts)
 
     def fromYAML(*args, **kwargs):
-        return bunchify(yaml.load(*args, **kwargs))
+        return neobunchify(yaml.load(*args, **kwargs))
 
-    Bunch.toYAML = toYAML
-    Bunch.fromYAML = staticmethod(fromYAML)
+    NeoBunch.toYAML = toYAML
+    NeoBunch.fromYAML = staticmethod(fromYAML)
 
 except ImportError:
     pass
+
+
+# alias legacy names
+Bunch = NeoBunch
+bunchify = neobunchify
+unbunchify = unneobunchify
 
 
 if __name__ == "__main__":

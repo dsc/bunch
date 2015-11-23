@@ -3,9 +3,9 @@
 import sys
 
 def test():
-    import bunch
+    import neobunch
     import doctest
-    returned = doctest.testmod(bunch)
+    returned = doctest.testmod(neobunch)
     return returned.failed
 
 if __name__ == '__main__':

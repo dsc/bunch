@@ -14,7 +14,7 @@ install:
   - python setup.py install
 
 script:
-  - coverage run --source="bunch" -m bunch.test
+  - coverage run --source="neobunch" -m neobunch.test
 
 after_success:
   - coveralls

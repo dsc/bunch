@@ -63,7 +63,7 @@ shell: setup
 
 
 test: setup
-	$(PY) -m bunch.test
+	$(PY) -m neobunch.test
 
 
 publish: test
