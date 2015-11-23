@@ -1,3 +1,5 @@
+NeoBunch
+========
 
 |BuildLink|_ |CoverageLink|_ |LicenseLink|_
 
@@ -19,22 +21,22 @@ remains otherwise compatible with the original package.
 
 If you previously used bunch_, change the following names to upgrade:
 
- * Module: `bunch` -> `neobunch`
- * Class: `bunch.Bunch` -> `neobunch.NeoBunch`
- * Function: `bunch.bunchify` -> `neobunch.neobunchify`
- * Function: `bunch.unbunchify` -> `neobunch.unneobunchify`
+ * Module: bunch -> neobunch
+ * Class: bunch.Bunch -> neobunch.NeoBunch
+ * Function: bunch.bunchify -> neobunch.neobunchify
+ * Function: bunch.unbunchify -> neobunch.unneobunchify
 
 The following legacy aliases exist to make upgrading easier:
 
- * Class: `bunch.Bunch` -> `neobunch.Bunch`
- * Function: `bunch.bunchify` -> `neobunch.bunchify`
- * Function: `bunch.unbunchify` -> `neobunch.unbunchify`
+ * Class: bunch.Bunch -> neobunch.Bunch
+ * Function: bunch.bunchify -> neobunch.bunchify
+ * Function: bunch.unbunchify -> neobunch.unbunchify
 
 .. _bunch: https://github.com/dsc/bunch
 
 
-neobunch
-========
+Usage
+=====
 
 NeoBunch is a dictionary that supports attribute-style access, a la JavaScript.
 
