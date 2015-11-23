@@ -141,8 +141,8 @@ class Bunch(dict):
             propagate as an AttributeError instead.
 
             >>> b = Bunch(foo='bar', this_is='useful when subclassing')
-            >>> b.values                            #doctest: +ELLIPSIS
-            <built-in method values of Bunch object at 0x...>
+            >>> callable(b.values)
+            True
             >>> b.values = 'uh oh'
             >>> b.values
             'uh oh'
