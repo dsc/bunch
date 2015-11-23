@@ -1,6 +1,19 @@
 neobunch
 ========
 
+|BuildLink|_ |CoverageLink|_ |BuildLink2|_ |CoverageLink2|_ |LicenseLink|_      
+                                                                                                               
+.. |BuildLink| image:: https://img.shields.io/travis/F483/neobunch/master.svg?label=Build-Master
+.. _BuildLink: https://travis-ci.org/F483/neobunch                            
+                                                                                                               
+.. |CoverageLink| image:: https://img.shields.io/coveralls/F483/neobunch/master.svg?label=Coverage-Master
+.. _CoverageLink: https://coveralls.io/r/F483/neobunch                        
+                                                                                                               
+.. |LicenseLink| image:: https://img.shields.io/badge/license-MIT-blue.svg      
+.. _LicenseLink: https://raw.githubusercontent.com/F483/neobunch/LICENSE.txt     
+
+
+
 This is a fork of the bunch_ package since it was abandoned. It differs in
 name only and remains otherwise compatible with the original package.
 
