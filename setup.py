@@ -1,31 +1,26 @@
-#!python
-# -*- coding: utf-8 -*-
-import re
-from os.path import dirname, abspath, join
+#!/usr/bin/env python
+# coding: utf-8
+
+
 from setuptools import setup
 
-HERE = abspath(dirname(__file__))
-readme = open(join(HERE, 'README.rst')).read()
 
-package_file = open(join(HERE, 'bunch/__init__.py'), 'rU')
-__version__ = re.sub(
-    r".*\b__version__\s+=\s+'([^']+)'.*",
-    r'\1',
-    [line.strip() for line in package_file if '__version__' in line].pop(0)
-)
+exec(open('bunch/version.py').read())  # load __version__
+
 
 setup(
     name="bunch",
-    version=__version__,
+    version=__version__,  # NOQA
     description="A dot-accessible dictionary (a la JavaScript objects)",
-    long_description=readme,
+    long_description=open("README.rst").read(),
     url="https://github.com/F483/neobunch",
     author="David Schoonover",
     author_email="dsc@less.ly",
     maintainer="Fabian Barkhau",
     maintainer_email="fabian.barkhau@gmail.com",
     packages=['bunch', ],
-    install_requires=["six >= 1.10.0"],
+    install_requires=open("requirements.txt").readlines(),
+    tests_require=open("test_requirements.txt").readlines(),
     keywords=[
         'neobunch', 'bunch', 'dict', 'mapping', 'container', 'collection'
     ],

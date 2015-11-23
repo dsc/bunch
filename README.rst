@@ -4,6 +4,9 @@ neobunch
 This is a fork of the bunch_ package since it was abandoned. It differs in
 name only and remains otherwise compatible with the original package.
 
+If you previously used the bunch_ package, just replace the dependencie with
+neobunch and everything will work just as before.
+
 .. _bunch: https://github.com/dsc/bunch
 
 

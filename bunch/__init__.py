@@ -23,14 +23,14 @@
     converted via Bunch.to/fromDict().
 """
 
+
+from .version import __version__
 from .python3_compat import iteritems
 from .python3_compat import iterkeys
 from .python3_compat import u
 
 
-__version__ = '1.1.0'
 VERSION = tuple(map(int, __version__.split('.')))
-
 __all__ = ('Bunch', 'bunchify', 'unbunchify',)
 
 
