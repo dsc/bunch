@@ -66,6 +66,10 @@ test: setup
 	$(PY) -m neobunch.test
 
 
+view_readme: setup
+	env/bin/restview --pypi-strict README.rst
+
+
 publish: test
 	$(PY) setup.py register bdist_wheel upload
 

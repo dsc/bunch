@@ -104,6 +104,7 @@ In addition, NeoBunch instances will have a ``toYAML()`` method that returns the
 
 Finally, NeoBunch converts easily and recursively to (``unneobunchify()``, ``NeoBunch.toDict()``) and from (``neobunchify()``, ``NeoBunch.fromDict()``) a normal ``dict``, making it easy to cleanly serialize them in other formats.
 
+.. _pyYAML: http://pyyaml.org/wiki/PyYAML
 
 Miscellaneous
 -------------

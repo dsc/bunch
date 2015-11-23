@@ -13,7 +13,7 @@ setup(
     version=__version__,  # NOQA
     description="A dot-accessible dictionary (a la JavaScript objects)",
     long_description=open("README.rst").read(),
-    url="https://github.com/F483/neoneobunch",
+    url="https://github.com/F483/neobunch",
     author="David Schoonover",
     author_email="dsc@less.ly",
     maintainer="Fabian Barkhau",
