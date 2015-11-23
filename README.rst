@@ -1,7 +1,7 @@
 neobunch
 ========
 
-|BuildLink|_ |CoverageLink|_ |BuildLink2|_ |CoverageLink2|_ |LicenseLink|_      
+|BuildLink|_ |CoverageLink|_ |LicenseLink|_      
                                                                                                                
 .. |BuildLink| image:: https://img.shields.io/travis/F483/neobunch/master.svg?label=Build-Master
 .. _BuildLink: https://travis-ci.org/F483/neobunch                            
