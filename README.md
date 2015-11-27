@@ -93,7 +93,7 @@ Miscellaneous
 -------------
 
 * It is safe to ``import *`` from this module. You'll get: ``Munch``, ``munchify``, and ``unmunchify``.
-* Ample Tests. Just run ``make test`` from the project root.
+* Ample Tests. Just run ``pip install tox && tox`` from the project root.
 
 Feedback
 --------

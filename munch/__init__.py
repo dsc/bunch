@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """ Munch is a subclass of dict with attribute-style access.
 
     >>> b = Munch()
@@ -26,9 +24,10 @@
 __version__ = '2.0.4'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Munch', 'munchify','unmunchify',)
+__all__ = ('Munch', 'munchify', 'unmunchify')
 
-from .python3_compat import *
+from .python3_compat import *  # noqa
+
 
 class Munch(dict):
     """ A dictionary that provides attribute-style access.
@@ -207,12 +206,10 @@ class Munch(dict):
         """
         return '%s(%s)' % (self.__class__.__name__, dict.__repr__(self))
 
-
-
     def __dir__(self):
         return list(iterkeys(self))
 
-    __members__ = __dir__ # for python2.x compatibility
+    __members__ = __dir__  # for python2.x compatibility
 
     @staticmethod
     def fromDict(d):
@@ -225,7 +222,6 @@ class Munch(dict):
             See munchify for more info.
         """
         return munchify(d)
-
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
@@ -255,11 +251,12 @@ def munchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return Munch( (k, munchify(v)) for k,v in iteritems(x) )
+        return Munch((k, munchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)( munchify(v) for v in x )
+        return type(x)(munchify(v) for v in x)
     else:
         return x
+
 
 def unmunchify(x):
     """ Recursively converts a Munch into a dictionary.
@@ -279,14 +276,14 @@ def unmunchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return dict( (k, unmunchify(v)) for k,v in iteritems(x) )
+        return dict((k, unmunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)( unmunchify(v) for v in x )
+        return type(x)(unmunchify(v) for v in x)
     else:
         return x
 
 
-### Serialization
+# Serialization
 
 try:
     try:
@@ -307,8 +304,6 @@ try:
 
 except ImportError:
     pass
-
-
 
 
 try:
@@ -339,7 +334,6 @@ try:
         value = loader.construct_mapping(node)
         data.update(value)
 
-
     def to_yaml_safe(dumper, data):
         """ Converts Munch to a normal mapping node, making it appear as a
             dict in the YAML output.
@@ -361,7 +355,6 @@ try:
         """
         return dumper.represent_mapping(u('!munch.Munch'), data)
 
-
     yaml.add_constructor(u('!munch'), from_yaml)
     yaml.add_constructor(u('!munch.Munch'), from_yaml)
 
@@ -370,7 +363,6 @@ try:
 
     Representer.add_representer(Munch, to_yaml)
     Representer.add_multi_representer(Munch, to_yaml)
-
 
     # Instance methods for YAML conversion
     def toYAML(self, **options):
@@ -387,6 +379,7 @@ try:
             '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\\n'
             >>> b.toYAML(Dumper=yaml.Dumper, default_flow_style=True)
             '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\\n'
+
         """
         opts = dict(indent=4, default_flow_style=False)
         opts.update(options)
@@ -396,16 +389,10 @@ try:
             return yaml.dump(self, **opts)
 
     def fromYAML(*args, **kwargs):
-        return munchify( yaml.load(*args, **kwargs) )
+        return munchify(yaml.load(*args, **kwargs))
 
     Munch.toYAML = toYAML
     Munch.fromYAML = staticmethod(fromYAML)
 
 except ImportError:
     pass
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
-
