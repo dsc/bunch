@@ -69,30 +69,6 @@ class Munch(dict):
         See unmunchify/Munch.toDict, munchify/Munch.fromDict for notes about conversion.
     """
 
-    def __contains__(self, k):
-        """ >>> b = Munch(ponies='are pretty!')
-            >>> 'ponies' in b
-            True
-            >>> 'foo' in b
-            False
-            >>> b['foo'] = 42
-            >>> 'foo' in b
-            True
-            >>> b.hello = 'hai'
-            >>> 'hello' in b
-            True
-            >>> b[None] = 123
-            >>> None in b
-            True
-            >>> b[False] = 456
-            >>> False in b
-            True
-        """
-        try:
-            return dict.__contains__(self, k) or hasattr(self, k)
-        except:
-            return False
-
     # only called if k not found in normal places
     def __getattr__(self, k):
         """ Gets key if it exists, otherwise throws AttributeError.
