@@ -1,6 +1,9 @@
-*.pyc
 *.egg-info
+*.pyc
+*.sublime-project
+*.sublime-workspace
+.cache/
+.coverage
+.env
 .tox
 dist/
-.env
-.cache

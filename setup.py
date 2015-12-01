@@ -1,6 +1,4 @@
-#!python
-# -*- coding: utf-8 -*-
-import sys, os, re
+import re
 from os.path import dirname, abspath, join
 from setuptools import setup, find_packages
 
@@ -12,22 +10,20 @@ package_file = open(join(HERE, 'munch', '__init__.py'), 'rU')
 __version__ = re.sub(
     r".*\b__version__\s+=\s+'([^']+)'.*",
     r'\1',
-    [ line.strip() for line in package_file if '__version__' in line ].pop(0)
+    [line.strip() for line in package_file if '__version__' in line].pop(0)
 )
 
 
 setup(
-    name             = "munch",
-    version          = __version__,
-    description      = "A dot-accessible dictionary (a la JavaScript objects).",
-    url              = "http://github.com/Infinidat/munch",
-
-    author           = "Rotem Yaari",
-    author_email     = "vmalloc@gmail.com",
-
-    packages         = find_packages(exclude=["tests"]),
-    keywords         = ['munch', 'dict', 'mapping', 'container', 'collection'],
-    classifiers      = [
+    name="munch",
+    version=__version__,
+    description="A dot-accessible dictionary (a la JavaScript objects).",
+    url="http://github.com/Infinidat/munch",
+    author="Rotem Yaari",
+    author_email="vmalloc@gmail.com",
+    packages=find_packages(exclude=["tests"]),
+    keywords=['munch', 'dict', 'mapping', 'container', 'collection'],
+    classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
@@ -43,5 +39,5 @@ setup(
         'Topic :: Utilities',
         'License :: OSI Approved :: MIT License',
     ],
-    license          = 'MIT',
+    license='MIT',
 )
