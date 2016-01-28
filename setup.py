@@ -21,7 +21,7 @@ setup(
     version          = __version__,
     description      = "A dot-accessible dictionary (a la JavaScript objects)",
     long_description = readme,
-    url              = "http://github.com/dsc/bunch",
+    url              = "https://github.com/dsc/bunch",
     
     author           = "David Schoonover",
     author_email     = "dsc@less.ly",
