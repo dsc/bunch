@@ -1,3 +1,24 @@
-*.pyc
+tmp/
+
+# Python
+pip-log.txt
+*.py[oc]
 *.egg-info
+*.un~
+.env
 .tox
+.coverage
+.coverage_html
+docs/_build/*
+
+# project files
+.project
+.settings
+*.sublime-*
+*.code-*
+
+# junk
+.DS_Store
+Icon?
+._*
+*~
