@@ -199,6 +199,9 @@ class Munch(dict):
         """
         return munchify(d)
 
+    def copy(self):
+        return Munch.fromDict(super(Munch, self).copy())
+
 
 # While we could convert abstract types like Mapping or Iterable, I think
 # munchify is more likely to "do what you mean" if it is conservative about

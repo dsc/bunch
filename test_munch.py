@@ -108,6 +108,12 @@ def test_fromDict():
     assert b.urmom.sez.what == 'what'
 
 
+def test_copy():
+    m = Munch(urmom=Munch(sez=Munch(what='what')))
+    c = m.copy()
+    assert c.urmom.sez.what == 'what'
+
+
 def test_munchify():
     b = munchify({'urmom': {'sez': {'what': 'what'}}})
     assert b.urmom.sez.what == 'what'
