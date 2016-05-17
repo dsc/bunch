@@ -2,7 +2,9 @@ import sys
 
 _PY2 = (sys.version_info < (3, 0))
 
-identity = lambda x: x
+
+def identity(x):
+    return x
 
 # u('string') replaces the forwards-incompatible u'string'
 if _PY2:
