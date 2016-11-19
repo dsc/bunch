@@ -19,7 +19,7 @@ __version__ = re.sub(
 setup(
     name             = "bunch",
     version          = __version__,
-    description      = "A dot-accessible dictionary (a la JavaScript objects)",
+    description      = "A dot-accessible dictionary (à la JavaScript objects)",
     long_description = readme,
     url              = "http://github.com/dsc/bunch",
     
