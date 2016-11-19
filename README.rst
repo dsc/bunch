@@ -1,7 +1,7 @@
 bunch
 =====
 
-Bunch is a dictionary that supports attribute-style access, a la JavaScript.
+Bunch is a dictionary that supports attribute-style access, à la JavaScript.
 
 >>> b = Bunch()
 >>> b.hello = 'world'
