@@ -11,7 +11,7 @@ exec(open('neobunch/version.py').read())  # load __version__
 setup(
     name="neobunch",
     version=__version__,  # NOQA
-    description="A dot-accessible dictionary (a la JavaScript objects)",
+    description="A dot-accessible dictionary (à la JavaScript objects)",
     long_description=open("README.rst").read(),
     url="https://github.com/F483/neobunch",
     author="David Schoonover",
