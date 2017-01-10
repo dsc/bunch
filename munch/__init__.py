@@ -26,7 +26,7 @@ VERSION = tuple(map(int, __version__.split('.')))
 
 __all__ = ('Munch', 'munchify', 'unmunchify')
 
-from .python3_compat import *  # noqa
+from .python3_compat import *   # pylint: disable=wildcard-import
 
 
 class Munch(dict):

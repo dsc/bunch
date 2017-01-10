@@ -17,8 +17,8 @@ else:
 
 # dict.iteritems(), dict.iterkeys() is also incompatible
 if _PY2:
-    iteritems = dict.iteritems
-    iterkeys = dict.iterkeys
+    iteritems = dict.iteritems  # pylint: disable=no-member
+    iterkeys = dict.iterkeys    # pylint: disable=no-member
 else:
     iteritems = dict.items
     iterkeys = dict.keys
