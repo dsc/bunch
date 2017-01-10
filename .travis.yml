@@ -17,6 +17,9 @@ matrix:
   - python: '3.5'
     env:
       - "TOXENV=py35-full"
+  - python: '3.6'
+    env:
+      - "TOXENV=py36-full"
   - python: 'pypy'
     env:
       - "TOXENV=pypy-full"
@@ -35,6 +38,9 @@ matrix:
   - python: '3.5'
     env:
       - "TOXENV=py35-no-deps"
+  - python: '3.6'
+    env:
+      - "TOXENV=py36-no-deps"
   - python: 'pypy'
     env:
       - "TOXENV=pypy-no-deps"
