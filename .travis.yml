@@ -4,52 +4,60 @@ matrix:
   include:
   - python: '2.6'
     env:
-      - "TOXENV=py26-full"
+    - TOXENV=py26-full
   - python: '2.7'
     env:
-      - "TOXENV=py27-full"
+    - TOXENV=py27-full
   - python: '3.3'
     env:
-      - "TOXENV=py33-full"
+    - TOXENV=py33-full
   - python: '3.4'
     env:
-      - "TOXENV=py34-full"
+    - TOXENV=py34-full
   - python: '3.5'
     env:
-      - "TOXENV=py35-full"
+    - TOXENV=py35-full
   - python: '3.6'
     env:
-      - "TOXENV=py36-full"
-  - python: 'pypy'
+    - TOXENV=py36-full
+  - python: pypy
     env:
-      - "TOXENV=pypy-full"
+    - TOXENV=pypy-full
   - python: '2.6'
     env:
-      - "TOXENV=py26-no-deps"
+    - TOXENV=py26-no-deps
   - python: '2.7'
     env:
-      - "TOXENV=py27-no-deps"
+    - TOXENV=py27-no-deps
   - python: '3.3'
     env:
-      - "TOXENV=py33-no-deps"
+    - TOXENV=py33-no-deps
   - python: '3.4'
     env:
-      - "TOXENV=py34-no-deps"
+    - TOXENV=py34-no-deps
   - python: '3.5'
     env:
-      - "TOXENV=py35-no-deps"
+    - TOXENV=py35-no-deps
   - python: '3.6'
     env:
-      - "TOXENV=py36-no-deps"
-  - python: 'pypy'
+    - TOXENV=py36-no-deps
+  - python: pypy
     env:
-      - "TOXENV=pypy-no-deps"
+    - TOXENV=pypy-no-deps
   - python: '3.5'
     env:
-      - "TOXENV=lint"
+    - TOXENV=lint
 install:
-  - pip install tox
+- pip install tox
 script:
-  - tox
-after_success:
-  coveralls
+- tox
+after_success: coveralls
+deploy:
+  provider: pypi
+  user: vmalloc
+  password:
+    secure: m3sHHSCl+dhOKz1tT3kWGyLdLX7qUZvCxvnH2OadJZJ8ziG2X319IkqUZWolG6hSO7j4mFb9kK7PxFk81nClLUJpUrgQ4Uamui2qdgFOZBaUH5QVS8ZGvZ85/Faa3YBO4BqyMVY9SG8uNSCWvFFMY61rHBA0rOtS+ZtRyvCy2SQ=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: Infinidat/munch
