@@ -21,6 +21,9 @@ setup(
     url="http://github.com/Infinidat/munch",
     author="Rotem Yaari",
     author_email="vmalloc@gmail.com",
+    install_requires=[
+        'six',
+    ],
     packages=find_packages(exclude=["tests"]),
     keywords=['munch', 'dict', 'mapping', 'container', 'collection'],
     classifiers=[
