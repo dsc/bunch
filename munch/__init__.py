@@ -24,7 +24,7 @@
 __version__ = '2.1.1'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Munch', 'munchify', 'unmunchify')
+__all__ = ('Munch', 'munchify', 'DefaultMunch', 'unmunchify')
 
 from .python3_compat import *   # pylint: disable=wildcard-import
 
@@ -187,8 +187,8 @@ class Munch(dict):
 
     __members__ = __dir__  # for python2.x compatibility
 
-    @staticmethod
-    def fromDict(d):
+    @classmethod
+    def fromDict(cls, d):
         """ Recursively transforms a dictionary into a Munch via copy.
 
             >>> b = Munch.fromDict({'urmom': {'sez': {'what': 'what'}}})
@@ -197,10 +197,61 @@ class Munch(dict):
 
             See munchify for more info.
         """
-        return munchify(d)
+        return munchify(d, cls)
 
     def copy(self):
-        return Munch.fromDict(super(Munch, self).copy())
+        return Munch.fromDict(self)
+
+
+class DefaultMunch(Munch):
+    """
+    A Munch that returns a user-specified value for missing keys.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """ Construct a new DefaultMunch. Like collections.defaultdict, the
+            first argument is the default value; subsequent arguments are the
+            same as those for dict.
+        """
+        # Mimic collections.defaultdict constructor
+        if args:
+            default = args[0]
+            args = args[1:]
+        else:
+            default = None
+        super(DefaultMunch, self).__init__(*args, **kwargs)
+        self.__default__ = default
+
+    def __getattr__(self, k):
+        """ Gets key if it exists, otherwise returns the default value."""
+        try:
+            return super(DefaultMunch, self).__getattr__(k)
+        except AttributeError:
+            return self.__default__
+
+    def __setattr__(self, k, v):
+        if k == '__default__':
+            object.__setattr__(self, k, v)
+        else:
+            return super(DefaultMunch, self).__setattr__(k, v)
+
+    def __getitem__(self, k):
+        """ Gets key if it exists, otherwise returns the default value."""
+        try:
+            return super(DefaultMunch, self).__getitem__(k)
+        except KeyError:
+            return self.__default__
+
+    @classmethod
+    def fromDict(cls, d, default=None):
+        return munchify(d, factory=lambda d_: cls(default, d_))
+
+    def copy(self):
+        return DefaultMunch.fromDict(self, default=self.__default__)
+
+    def __repr__(self):
+        return '%s(%r, %s)' % (
+            type(self).__name__, self.__undefined__, dict.__repr__(self))
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
@@ -210,7 +261,7 @@ class Munch(dict):
 # Should you disagree, it is not difficult to duplicate this function with
 # more aggressive coercion to suit your own purposes.
 
-def munchify(x):
+def munchify(x, factory=Munch):
     """ Recursively transforms a dictionary into a Munch via copy.
 
         >>> b = munchify({'urmom': {'sez': {'what': 'what'}}})
@@ -230,9 +281,9 @@ def munchify(x):
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
-        return Munch((k, munchify(v)) for k, v in iteritems(x))
+        return factory((k, munchify(v, factory)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)(munchify(v) for v in x)
+        return type(x)(munchify(v, factory) for v in x)
     else:
         return x
 
