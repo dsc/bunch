@@ -187,8 +187,8 @@ class Munch(dict):
 
     __members__ = __dir__  # for python2.x compatibility
 
-    @classmethod
-    def fromDict(cls, d):
+    @staticmethod
+    def fromDict(d):
         """ Recursively transforms a dictionary into a Munch via copy.
 
             >>> b = Munch.fromDict({'urmom': {'sez': {'what': 'what'}}})
@@ -197,7 +197,7 @@ class Munch(dict):
 
             See munchify for more info.
         """
-        return munchify(d, cls)
+        return munchify(d, Munch)
 
     def copy(self):
         return Munch.fromDict(self)
@@ -242,9 +242,9 @@ class DefaultMunch(Munch):
         except KeyError:
             return self.__default__
 
-    @classmethod
-    def fromDict(cls, d, default=None):
-        return munchify(d, factory=lambda d_: cls(default, d_))
+    @staticmethod
+    def fromDict(d, default=None):
+        return munchify(d, factory=lambda d_: DefaultMunch(default, d_))
 
     def copy(self):
         return DefaultMunch.fromDict(self, default=self.__default__)
