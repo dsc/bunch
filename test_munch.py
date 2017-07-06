@@ -242,3 +242,9 @@ def test_munchify_default():
     assert b.urmom.sez.what == 'what'
     assert b.urdad is undefined
     assert b.urmom.sez.ni is undefined
+
+
+def test_repr_default():
+    b = DefaultMunch(foo=DefaultMunch(lol=True), ponies='are pretty!')
+    assert repr(b).startswith("DefaultMunch(None, {'")
+    assert "'ponies': 'are pretty!'" in repr(b)

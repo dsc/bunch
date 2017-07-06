@@ -180,7 +180,7 @@ class Munch(dict):
 
             (*) Invertible so long as collection contents are each repr-invertible.
         """
-        return '%s(%s)' % (self.__class__.__name__, dict.__repr__(self))
+        return '{}({})'.format(self.__class__.__name__, dict.__repr__(self))
 
     def __dir__(self):
         return list(iterkeys(self))
@@ -251,7 +251,7 @@ class DefaultMunch(Munch):
         return type(self).fromDict(self, default=self.__default__)
 
     def __repr__(self):
-        return '%s(%r, %s)' % (
+        return '{}({!r}, {})'.format(
             type(self).__name__, self.__undefined__, dict.__repr__(self))
 
 
