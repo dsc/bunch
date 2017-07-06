@@ -92,7 +92,7 @@ Finally, Munch converts easily and recursively to (``unmunchify()``, ``Munch.toD
 Default Values
 --------------
 
-``DefaultMunch`` instances return some default value when an attribute is missing from the collection. Like ``collections.defaultdict``, the first argument is the value to use for missing keys:
+``DefaultMunch`` instances return a specific default value when an attribute is missing from the collection. Like ``collections.defaultdict``, the first argument is the value to use for missing keys:
 
 ````py
 >>> undefined = object()
