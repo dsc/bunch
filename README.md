@@ -89,14 +89,39 @@ In addition, Munch instances will have a ``toYAML()`` method that returns the YA
 Finally, Munch converts easily and recursively to (``unmunchify()``, ``Munch.toDict()``) and from (``munchify()``, ``Munch.fromDict()``) a normal ``dict``, making it easy to cleanly serialize them in other formats.
 
 
+Default Values
+--------------
+
+``DefaultMunch`` instances return a specific default value when an attribute is missing from the collection. Like ``collections.defaultdict``, the first argument is the value to use for missing keys:
+
+````py
+>>> undefined = object()
+>>> b = DefaultMunch(undefined, {'hello': 'world!'})
+>>> b.hello
+'world!'
+>>> b.foo is undefined
+True
+````
+
+``DefaultMunch.fromDict()`` also takes the ``default`` argument:
+
+````py
+>>> undefined = object()
+>>> b = DefaultMunch.fromDict({'recursively': {'nested': 'value'}}, undefined)
+>>> b.recursively.nested == 'value'
+True
+>>> b.recursively.foo is undefined
+True
+````
+
+
 Miscellaneous
 -------------
 
-* It is safe to ``import *`` from this module. You'll get: ``Munch``, ``munchify``, and ``unmunchify``.
+* It is safe to ``import *`` from this module. You'll get: ``Munch``, ``DefaultMunch``, ``munchify`` and ``unmunchify``.
 * Ample Tests. Just run ``pip install tox && tox`` from the project root.
 
 Feedback
 --------
 
 Open a ticket / fork the project on [GitHub](http://github.com/Infinidat/munch).
-
