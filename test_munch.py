@@ -80,6 +80,9 @@ def test_toDict():
     b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
     assert sorted(b.toDict().items()) == [('foo', {'lol': True}), ('hello', 42), ('ponies', 'are pretty!')]
 
+def test_dict_property():
+    b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
+    assert sorted(b.__dict__.items()) == [('foo', {'lol': True}), ('hello', 42), ('ponies', 'are pretty!')]
 
 def test_repr():
     b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
