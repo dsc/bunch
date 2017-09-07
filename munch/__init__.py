@@ -163,6 +163,10 @@ class Munch(dict):
         """
         return unmunchify(self)
 
+    @property
+    def __dict__(self):
+        return self.toDict()
+
     def __repr__(self):
         """ Invertible* string-form of a Munch.
 
