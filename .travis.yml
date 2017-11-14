@@ -2,18 +2,9 @@ language: python
 sudo: false
 matrix:
   include:
-  - python: '2.6'
-    env:
-    - TOXENV=py26-full
   - python: '2.7'
     env:
     - TOXENV=py27-full
-  - python: '3.3'
-    env:
-    - TOXENV=py33-full
-  - python: '3.4'
-    env:
-    - TOXENV=py34-full
   - python: '3.5'
     env:
     - TOXENV=py35-full
@@ -23,18 +14,9 @@ matrix:
   - python: pypy
     env:
     - TOXENV=pypy-full
-  - python: '2.6'
-    env:
-    - TOXENV=py26-no-deps
   - python: '2.7'
     env:
     - TOXENV=py27-no-deps
-  - python: '3.3'
-    env:
-    - TOXENV=py33-no-deps
-  - python: '3.4'
-    env:
-    - TOXENV=py34-no-deps
   - python: '3.5'
     env:
     - TOXENV=py35-no-deps
