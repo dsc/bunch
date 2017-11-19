@@ -197,7 +197,8 @@ class Munch(dict):
 
         See https://docs.python.org/3.6/library/pickle.html.
         """
-        self.__init__(state)
+        self.clear()
+        self.update(state)
 
     __members__ = __dir__  # for python2.x compatibility
 
@@ -268,7 +269,10 @@ class DefaultMunch(Munch):
 
         See https://docs.python.org/3.6/library/pickle.html.
         """
-        self.__init__(*state)
+        self.clear()
+        default, state_dict = state
+        self.update(state_dict)
+        self.__default__ = default
 
     @classmethod
     def fromDict(cls, d, default=None):
