@@ -191,8 +191,8 @@ class Bunch(dict):
         """ Recursively converts a bunch back into a dictionary.
             
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-            >>> b.toDict()
-            {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+            >>> b.toDict() == {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+            True
             
             See unbunchify for more info.
         """
@@ -265,18 +265,18 @@ def unbunchify(x):
     """ Recursively converts a Bunch into a dictionary.
         
         >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
-        >>> unbunchify(b)
-        {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
-        
+        >>> unbunchify(b) == {'ponies': 'are pretty!', 'foo': {'lol': True}, 'hello': 42}
+        True
+    
         unbunchify will handle intermediary dicts, lists and tuples (as well as
         their subclasses), but ymmv on custom datatypes.
         
         >>> b = Bunch(foo=['bar', Bunch(lol=True)], hello=42, 
         ...         ponies=('are pretty!', Bunch(lies='are trouble!')))
-        >>> unbunchify(b) #doctest: +NORMALIZE_WHITESPACE
-        {'ponies': ('are pretty!', {'lies': 'are trouble!'}), 
-         'foo': ['bar', {'lol': True}], 'hello': 42}
-        
+        >>> unbunchify(b) == {'ponies': ('are pretty!', {'lies': 'are trouble!'}),
+        ...         'foo': ['bar', {'lol': True}], 'hello': 42}
+        True
+
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
     if isinstance(x, dict):
