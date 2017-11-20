@@ -70,36 +70,6 @@ class Bunch(dict):
         See unbunchify/Bunch.toDict, bunchify/Bunch.fromDict for notes about conversion.
     """
     
-    def __contains__(self, k):
-        """ >>> b = Bunch(ponies='are pretty!')
-            >>> 'ponies' in b
-            True
-            >>> 'foo' in b
-            False
-            >>> b['foo'] = 42
-            >>> 'foo' in b
-            True
-            >>> b.hello = 'hai'
-            >>> 'hello' in b
-            True
-            >>> b[None] = 123
-            >>> None in b
-            True
-            >>> b[False] = 456
-            >>> False in b
-            True
-            >>> 'items' in b, 'keys' in b, 'values' in b
-            (False, False, False)
-            >>> b['values']
-            Traceback (most recent call last):
-              File "<doctest bunch.Bunch.__contains__[12]>", line 1, in <module>
-                b['values']
-            KeyError: 'values'
-            >>> b.values  # doctest: +ELLIPSIS
-            <built-in method values of Bunch object at ...>
-        """
-        return dict.__contains__(self, k)
-    
     # only called if k not found in normal places 
     def __getattr__(self, k):
         """ Gets key if it exists, otherwise throws AttributeError.
