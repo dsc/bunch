@@ -120,7 +120,7 @@ class Bunch(dict):
         """
         try:
             # Throws exception if not in prototype chain
-            return object.__getattribute__(self, k)
+            return dict.__getattribute__(self, k)
         except AttributeError:
             try:
                 return self[k]
@@ -145,14 +145,14 @@ class Bunch(dict):
         """
         try:
             # Throws exception if not in prototype chain
-            object.__getattribute__(self, k)
+            dict.__getattribute__(self, k)
         except AttributeError:
             try:
                 self[k] = v
             except:
                 raise AttributeError(k)
         else:
-            object.__setattr__(self, k, v)
+            dict.__setattr__(self, k, v)
     
     def __delattr__(self, k):
         """ Deletes attribute k if it exists, otherwise deletes key k. A KeyError
@@ -172,14 +172,14 @@ class Bunch(dict):
         """
         try:
             # Throws exception if not in prototype chain
-            object.__getattribute__(self, k)
+            dict.__getattribute__(self, k)
         except AttributeError:
             try:
                 del self[k]
             except KeyError:
                 raise AttributeError(k)
         else:
-            object.__delattr__(self, k)
+            dict.__delattr__(self, k)
     
     def toDict(self):
         """ Recursively converts a bunch back into a dictionary.
