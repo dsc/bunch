@@ -125,13 +125,9 @@ class Bunch(dict):
             True
         """
         try:
-            # Throws exception if not in prototype chain
-            return object.__getattribute__(self, k)
-        except AttributeError:
-            try:
-                return self[k]
-            except KeyError:
-                raise AttributeError(k)
+           return self[k]
+        except KeyError:
+           raise AttributeError(k)
     
     def __setattr__(self, k, v):
         """ Sets attribute k if it exists, otherwise sets key k. A KeyError
