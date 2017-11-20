@@ -88,11 +88,17 @@ class Bunch(dict):
             >>> b[False] = 456
             >>> False in b
             True
+            >>> 'items' in b, 'keys' in b, 'values' in b
+            (False, False, False)
+            >>> b['values']
+            Traceback (most recent call last):
+              File "<doctest bunch.Bunch.__contains__[12]>", line 1, in <module>
+                b['values']
+            KeyError: 'values'
+            >>> b.values  # doctest: +ELLIPSIS
+            <built-in method values of Bunch object at ...>
         """
-        try:
-            return dict.__contains__(self, k) or hasattr(self, k)
-        except:
-            return False
+        return dict.__contains__(self, k)
     
     # only called if k not found in normal places 
     def __getattr__(self, k):
