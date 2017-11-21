@@ -160,10 +160,10 @@ class Bunch(dict):
             propagate as an AttributeError instead.
             
             >>> b = Bunch(lol=42)
-            >>> del b.values
+            >>> del b.values  # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            AttributeError: 'Bunch' object attribute 'values' is read-only
+            AttributeError: ...values...
             >>> del b.lol
             >>> b.lol
             Traceback (most recent call last):
