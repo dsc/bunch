@@ -118,8 +118,6 @@ class Munch(dict):
                 ...
             KeyError: 'values'
         """
-        if isinstance(v, dict) and not isinstance(v, Munch):
-            v = munchify(v)
         try:
             # Throws exception if not in prototype chain
             object.__getattribute__(self, k)
@@ -207,6 +205,16 @@ class Munch(dict):
 
     def copy(self):
         return type(self).fromDict(self)
+
+
+class AutoMunch(Munch):
+    def __setattr__(self, k, v):
+        """ Works the same as Munch.__setattr__ but if you supply
+            a dictionary as value it will convert it to another Munch.
+        """
+        if isinstance(v, dict) and not isinstance(v, (AutoMunch, Munch)):
+            v = munchify(v, AutoMunch)
+        super(AutoMunch, self).__setattr__(k, v)
 
 
 class DefaultMunch(Munch):

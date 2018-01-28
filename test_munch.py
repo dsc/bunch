@@ -1,6 +1,6 @@
 import json
 import pytest
-from munch import DefaultMunch, Munch, munchify, unmunchify
+from munch import DefaultMunch, AutoMunch, Munch, munchify, unmunchify
 
 
 def test_base():
@@ -65,8 +65,8 @@ def test_setattr():
         b['values']
 
 
-def test_setattr_munchify():
-    b = Munch()
+def test_automunch():
+    b = AutoMunch()
     b.urmom = {'sez': {'what': 'what'}}
     assert b.urmom.sez.what == 'what'
 
