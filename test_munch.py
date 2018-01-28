@@ -65,6 +65,12 @@ def test_setattr():
         b['values']
 
 
+def test_setattr_munchify():
+    b = Munch()
+    b.urmom = {'sez': {'what': 'what'}}
+    assert b.urmom.sez.what == 'what'
+
+
 def test_delattr():
     b = Munch(lol=42)
     del b.lol

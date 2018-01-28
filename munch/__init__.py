@@ -118,6 +118,8 @@ class Munch(dict):
                 ...
             KeyError: 'values'
         """
+        if isinstance(v, dict) and not isinstance(v, Munch):
+            v = munchify(v)
         try:
             # Throws exception if not in prototype chain
             object.__getattribute__(self, k)
