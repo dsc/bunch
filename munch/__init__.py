@@ -24,7 +24,11 @@
 __version__ = '2.2.0'
 VERSION = tuple(map(int, __version__.split('.')))
 
-__all__ = ('Munch', 'munchify', 'DefaultMunch', 'unmunchify')
+__all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchify')
+
+
+from collections import defaultdict
+
 
 from .python3_compat import *   # pylint: disable=wildcard-import
 
@@ -257,6 +261,42 @@ class DefaultMunch(Munch):
     def __repr__(self):
         return '{0}({1!r}, {2})'.format(
             type(self).__name__, self.__undefined__, dict.__repr__(self))
+
+
+class DefaultFactoryMunch(defaultdict, Munch):
+    """ A Munch that calls a user-specified function to generate values for
+        missing keys like collections.defaultdict.
+
+        >>> b = DefaultFactoryMunch(list, {'hello': 'world!'})
+        >>> b.hello
+        'world!'
+        >>> b.foo
+        []
+        >>> b.bar.append('hello')
+        >>> b.bar
+        ['hello']
+    """
+    def __init__(self, *args, **kwargs):
+        if not args:
+            def default():
+                return None
+
+            args = [default]
+
+        super(DefaultFactoryMunch, self).__init__(*args, **kwargs)
+
+    @classmethod
+    def fromDict(cls, d, default=lambda: None):
+        # pylint: disable=arguments-differ
+        return munchify(d, factory=lambda d_: cls(default, d_))
+
+    def copy(self):
+        return type(self).fromDict(self, default=self.default_factory)
+
+    def __repr__(self):
+        factory = self.default_factory.__name__
+        return '{0}({1}, {2})'.format(
+            type(self).__name__, factory, dict.__repr__(self))
 
 
 # While we could convert abstract types like Mapping or Iterable, I think

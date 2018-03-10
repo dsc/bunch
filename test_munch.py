@@ -1,6 +1,6 @@
 import json
 import pytest
-from munch import DefaultMunch, Munch, munchify, unmunchify
+from munch import DefaultFactoryMunch, DefaultMunch, Munch, munchify, unmunchify
 
 
 def test_base():
@@ -250,4 +250,89 @@ def test_munchify_default():
 def test_repr_default():
     b = DefaultMunch(foo=DefaultMunch(lol=True), ponies='are pretty!')
     assert repr(b).startswith("DefaultMunch(None, {'")
+    assert "'ponies': 'are pretty!'" in repr(b)
+
+
+def test_getattr_default_function():
+    b = DefaultFactoryMunch(bar='baz', lol={})
+    assert b.foo is None
+    assert b['foo'] is None
+
+    assert b.bar == 'baz'
+    assert getattr(b, 'bar') == 'baz'
+    assert b['bar'] == 'baz'
+    assert b.lol is b['lol']
+    assert b.lol is getattr(b, 'lol')
+
+    undefined = object()
+    default = lambda: undefined
+    b = DefaultFactoryMunch(default, bar='baz', lol={})
+    assert b.foo is undefined
+    assert b['foo'] is undefined
+
+    default = lambda: object()
+    b = DefaultFactoryMunch(default, bar='baz', lol={})
+    assert b.foo is not b.baz
+    assert b.foo is b['foo']
+    assert b.foobar is b.foobar
+
+    b = DefaultFactoryMunch(list)
+    assert b.foo == []
+    b.foo.append('bar')
+    assert b.foo == ['bar']
+    assert b.default_factory is list
+
+
+def test_setattr_default_function():
+    b = DefaultFactoryMunch(foo='bar', this_is='useful when subclassing')
+    assert hasattr(b.values, '__call__')
+
+    b.values = 'uh oh'
+    assert b.values == 'uh oh'
+    assert b['values'] is None
+
+    assert b.default_factory() is None
+    assert 'default_factory' not in b
+
+
+def test_delattr_default_function():
+    b = DefaultFactoryMunch(lol=42)
+    del b.lol
+
+    assert b.lol is None
+    assert b['lol'] is None
+
+
+def test_fromDict_default_function():
+    obj = object()
+    undefined = lambda: obj
+    b = DefaultFactoryMunch.fromDict({'urmom': {'sez': {'what': 'what'}}}, undefined)
+    assert b.urmom.sez.what == 'what'
+    assert b.urmom.sez.foo is undefined()
+
+
+def test_copy_default_function():
+    undefined = lambda: object()
+    m = DefaultFactoryMunch.fromDict({'urmom': {'sez': {'what': 'what'}}}, undefined)
+    c = m.copy()
+    assert c is not m
+    assert c.urmom is not m.urmom
+    assert c.urmom.sez is not m.urmom.sez
+    assert c.urmom.sez.what == 'what'
+    assert c == m
+
+
+def test_munchify_default_function():
+    undefined = lambda: object()
+    b = munchify(
+        {'urmom': {'sez': {'what': 'what'}}},
+        lambda d: DefaultFactoryMunch(undefined, d))
+    assert b.urmom.sez.what == 'what'
+    assert b.urdad is not undefined()
+    assert b.urmom.sez.ni is not b.urdad
+
+
+def test_repr_default_function():
+    b = DefaultFactoryMunch(foo=DefaultFactoryMunch(lol=True), ponies='are pretty!')
+    assert repr(b).startswith("DefaultFactoryMunch(default, {'")
     assert "'ponies': 'are pretty!'" in repr(b)
