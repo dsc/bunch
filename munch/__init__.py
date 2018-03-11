@@ -278,6 +278,7 @@ class DefaultFactoryMunch(defaultdict, Munch):
     """
 
     def __init__(self, default_factory, *args, **kwargs):
+        # pylint: disable=useless-super-delegation
         super(DefaultFactoryMunch, self).__init__(default_factory, *args, **kwargs)
 
     @classmethod
