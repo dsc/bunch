@@ -276,22 +276,17 @@ class DefaultFactoryMunch(defaultdict, Munch):
         >>> b.bar
         ['hello']
     """
-    def __init__(self, *args, **kwargs):
-        if not args:
-            def default():
-                return None
 
-            args = [default]
-
-        super(DefaultFactoryMunch, self).__init__(*args, **kwargs)
+    def __init__(self, default_factory, *args, **kwargs):
+        super(DefaultFactoryMunch, self).__init__(default_factory, *args, **kwargs)
 
     @classmethod
-    def fromDict(cls, d, default=lambda: None):
+    def fromDict(cls, d, default_factory):
         # pylint: disable=arguments-differ
-        return munchify(d, factory=lambda d_: cls(default, d_))
+        return munchify(d, factory=lambda d_: cls(default_factory, d_))
 
     def copy(self):
-        return type(self).fromDict(self, default=self.default_factory)
+        return type(self).fromDict(self, default_factory=self.default_factory)
 
     def __repr__(self):
         factory = self.default_factory.__name__

@@ -253,8 +253,8 @@ def test_repr_default():
     assert "'ponies': 'are pretty!'" in repr(b)
 
 
-def test_getattr_default_function():
-    b = DefaultFactoryMunch(bar='baz', lol={})
+def test_getattr_default_factory():
+    b = DefaultFactoryMunch(lambda: None, bar='baz', lol={})
     assert b.foo is None
     assert b['foo'] is None
 
@@ -283,8 +283,8 @@ def test_getattr_default_function():
     assert b.default_factory is list
 
 
-def test_setattr_default_function():
-    b = DefaultFactoryMunch(foo='bar', this_is='useful when subclassing')
+def test_setattr_default_factory():
+    b = DefaultFactoryMunch(lambda: None, foo='bar', this_is='useful when subclassing')
     assert hasattr(b.values, '__call__')
 
     b.values = 'uh oh'
@@ -295,15 +295,15 @@ def test_setattr_default_function():
     assert 'default_factory' not in b
 
 
-def test_delattr_default_function():
-    b = DefaultFactoryMunch(lol=42)
+def test_delattr_default_factory():
+    b = DefaultFactoryMunch(lambda: None, lol=42)
     del b.lol
 
     assert b.lol is None
     assert b['lol'] is None
 
 
-def test_fromDict_default_function():
+def test_fromDict_default_factory():
     obj = object()
     undefined = lambda: obj
     b = DefaultFactoryMunch.fromDict({'urmom': {'sez': {'what': 'what'}}}, undefined)
@@ -311,7 +311,7 @@ def test_fromDict_default_function():
     assert b.urmom.sez.foo is undefined()
 
 
-def test_copy_default_function():
+def test_copy_default_factory():
     undefined = lambda: object()
     m = DefaultFactoryMunch.fromDict({'urmom': {'sez': {'what': 'what'}}}, undefined)
     c = m.copy()
@@ -322,7 +322,7 @@ def test_copy_default_function():
     assert c == m
 
 
-def test_munchify_default_function():
+def test_munchify_default_factory():
     undefined = lambda: object()
     b = munchify(
         {'urmom': {'sez': {'what': 'what'}}},
@@ -332,7 +332,9 @@ def test_munchify_default_function():
     assert b.urmom.sez.ni is not b.urdad
 
 
-def test_repr_default_function():
-    b = DefaultFactoryMunch(foo=DefaultFactoryMunch(lol=True), ponies='are pretty!')
-    assert repr(b).startswith("DefaultFactoryMunch(default, {'")
+def test_repr_default_factory():
+    b = DefaultFactoryMunch(list, foo=DefaultFactoryMunch(list, lol=True), ponies='are pretty!')
+    assert repr(b).startswith("DefaultFactoryMunch(list, {'")
     assert "'ponies': 'are pretty!'" in repr(b)
+
+    assert eval(repr(b)) == b
