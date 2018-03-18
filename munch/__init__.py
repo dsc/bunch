@@ -211,6 +211,16 @@ class Munch(dict):
         return type(self).fromDict(self)
 
 
+class AutoMunch(Munch):
+    def __setattr__(self, k, v):
+        """ Works the same as Munch.__setattr__ but if you supply
+            a dictionary as value it will convert it to another Munch.
+        """
+        if isinstance(v, dict) and not isinstance(v, (AutoMunch, Munch)):
+            v = munchify(v, AutoMunch)
+        super(AutoMunch, self).__setattr__(k, v)
+
+
 class DefaultMunch(Munch):
     """
     A Munch that returns a user-specified value for missing keys.
