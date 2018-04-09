@@ -1,4 +1,5 @@
 import json
+import pickle
 import pytest
 from munch import DefaultFactoryMunch, AutoMunch, DefaultMunch, Munch, munchify, unmunchify
 
@@ -64,6 +65,10 @@ def test_setattr():
     with pytest.raises(KeyError):
         b['values']
 
+
+def test_pickle():
+    b = DefaultMunch.fromDict({"a": "b"})
+    assert pickle.loads(pickle.dumps(b)) == b
 
 def test_automunch():
     b = AutoMunch()
@@ -221,6 +226,11 @@ def test_delattr_default():
 
     assert b.lol is None
     assert b['lol'] is None
+
+
+def test_pickle_default():
+    b = DefaultMunch.fromDict({"a": "b"})
+    assert pickle.loads(pickle.dumps(b)) == b
 
 
 def test_fromDict_default():

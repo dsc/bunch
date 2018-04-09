@@ -21,7 +21,7 @@
     converted via Munch.to/fromDict().
 """
 
-__version__ = '2.2.0'
+__version__ = '2.3.0'
 VERSION = tuple(map(int, __version__.split('.')))
 
 __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchify')
@@ -193,6 +193,21 @@ class Munch(dict):
     def __dir__(self):
         return list(iterkeys(self))
 
+    def __getstate__(self):
+        """ Implement a serializable interface used for pickling.
+
+        See https://docs.python.org/3.6/library/pickle.html.
+        """
+        return self.toDict()
+
+    def __setstate__(self, state):
+        """ Implement a serializable interface used for pickling.
+
+        See https://docs.python.org/3.6/library/pickle.html.
+        """
+        self.clear()
+        self.update(state)
+
     __members__ = __dir__  # for python2.x compatibility
 
     @classmethod
@@ -259,6 +274,23 @@ class DefaultMunch(Munch):
             return super(DefaultMunch, self).__getitem__(k)
         except KeyError:
             return self.__default__
+
+    def __getstate__(self):
+        """ Implement a serializable interface used for pickling.
+
+        See https://docs.python.org/3.6/library/pickle.html.
+        """
+        return (self.__default__, self.toDict())
+
+    def __setstate__(self, state):
+        """ Implement a serializable interface used for pickling.
+
+        See https://docs.python.org/3.6/library/pickle.html.
+        """
+        self.clear()
+        default, state_dict = state
+        self.update(state_dict)
+        self.__default__ = default
 
     @classmethod
     def fromDict(cls, d, default=None):
