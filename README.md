@@ -114,11 +114,24 @@ True
 True
 ````
 
+Or you can use ``DefaultFactoryMunch`` to specify a factory for generating missing attributes. The first argument is the factory:
+
+````py
+>>> b = DefaultFactoryMunch(list, {'hello': 'world!'})
+>>> b.hello
+'world!'
+>>> b.foo
+[]
+>>> b.bar.append('hello')
+>>> b.bar
+['hello']
+````
+
 
 Miscellaneous
 -------------
 
-* It is safe to ``import *`` from this module. You'll get: ``Munch``, ``DefaultMunch``, ``munchify`` and ``unmunchify``.
+* It is safe to ``import *`` from this module. You'll get: ``Munch``, ``DefaultMunch``, ``DefaultFactoryMunch``, ``munchify`` and ``unmunchify``.
 * Ample Tests. Just run ``pip install tox && tox`` from the project root.
 
 Feedback
