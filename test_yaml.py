@@ -1,5 +1,8 @@
 from munch import Munch
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None
 
 
 def test_from_yaml():
