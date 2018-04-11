@@ -8,3 +8,4 @@
 .tox
 dist/
 /.pytest_cache
+flycheck_*
