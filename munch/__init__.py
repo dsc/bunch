@@ -21,7 +21,7 @@
     converted via Munch.to/fromDict().
 """
 
-__version__ = '2.3.0'
+__version__ = '2.3.1'
 VERSION = tuple(map(int, __version__.split('.')))
 
 __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchify')
