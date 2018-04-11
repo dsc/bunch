@@ -21,7 +21,7 @@
     converted via Munch.to/fromDict().
 """
 
-__version__ = '2.3.0'
+__version__ = '2.3.1'
 VERSION = tuple(map(int, __version__.split('.')))
 
 __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchify')
@@ -198,7 +198,7 @@ class Munch(dict):
 
         See https://docs.python.org/3.6/library/pickle.html.
         """
-        return self.toDict()
+        return {k: v for k, v in self.items()}
 
     def __setstate__(self, state):
         """ Implement a serializable interface used for pickling.
@@ -280,7 +280,7 @@ class DefaultMunch(Munch):
 
         See https://docs.python.org/3.6/library/pickle.html.
         """
-        return (self.__default__, self.toDict())
+        return (self.__default__, {k: v for k, v in self.items()})
 
     def __setstate__(self, state):
         """ Implement a serializable interface used for pickling.

@@ -354,3 +354,13 @@ def test_repr_default_factory():
     assert "'ponies': 'are pretty!'" in repr(b)
 
     assert eval(repr(b)) == b
+
+
+def test_pickling_unpickling_nested():
+    m = {'a': {'b': 'c'}}
+    m = munchify(m)
+    assert m == Munch({'a': Munch({'b': 'c'})})
+    assert isinstance(m.a, Munch)
+    result = pickle.loads(pickle.dumps(m))
+    assert result == m
+    assert isinstance(result.a, Munch)
