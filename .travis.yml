@@ -43,3 +43,5 @@ deploy:
     tags: true
     distributions: sdist bdist_wheel
     repo: Infinidat/munch
+    python: '3.6'
+    condition: $TOXENV = py36-no-deps
