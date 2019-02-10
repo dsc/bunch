@@ -255,7 +255,7 @@ class AutoMunch(Munch):
         """ Works the same as Munch.__setattr__ but if you supply
             a dictionary as value it will convert it to another Munch.
         """
-        if isinstance(v, dict) and not isinstance(v, (AutoMunch, Munch)):
+        if isinstance(v, Mapping) and not isinstance(v, (AutoMunch, Munch)):
             v = munchify(v, AutoMunch)
         super(AutoMunch, self).__setattr__(k, v)
 
@@ -397,7 +397,7 @@ def munchify(x, factory=Munch):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
+    if isinstance(x, Mapping):
         return factory((k, munchify(x[k], factory)) for k in iterkeys(x))
     elif isinstance(x, (list, tuple)):
         return type(x)(munchify(v, factory) for v in x)
@@ -422,7 +422,7 @@ def unmunchify(x):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
+    if isinstance(x, Mapping):
         return dict((k, unmunchify(x[k])) for k in iterkeys(x))
     elif isinstance(x, (list, tuple)):
         return type(x)(unmunchify(v) for v in x)
