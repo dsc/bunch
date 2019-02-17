@@ -364,3 +364,35 @@ def test_pickling_unpickling_nested():
     result = pickle.loads(pickle.dumps(m))
     assert result == m
     assert isinstance(result.a, Munch)
+
+
+def test_setitem_dunder_for_subclass():
+
+    def test_class(cls, *args):
+        class CustomMunch(cls):
+            def __setitem__(self, k, v):
+                super(CustomMunch, self).__setitem__(k, [v] * 2)
+        custom_munch = CustomMunch(*args, a='foo')
+        assert custom_munch.a == ['foo', 'foo']
+        regular_dict = {}
+        regular_dict.update(custom_munch)
+        assert regular_dict['a'] == ['foo', 'foo']
+        assert repr(regular_dict) == "{'a': ['foo', 'foo']}"
+        custom_munch.setdefault('bar', 'baz')
+        assert custom_munch.bar == ['baz', 'baz']
+
+    test_class(Munch)
+    test_class(DefaultFactoryMunch, list)
+    test_class(DefaultMunch, 42)
+
+
+def test_getitem_dunder_for_subclass():
+    class CustomMunch(Munch):
+        def __getitem__(self, k):
+            return 42
+
+    custom_munch = CustomMunch(a='foo')
+    custom_munch.update({'b': 1})
+    assert custom_munch.a == 42
+    assert custom_munch.get('b') == 42
+    assert custom_munch.copy() == Munch(a=42, b=42)

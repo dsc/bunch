@@ -9,3 +9,5 @@
 dist/
 /.pytest_cache
 flycheck_*
+*.vscode
+*.code-workspace
