@@ -397,12 +397,26 @@ def munchify(x, factory=Munch):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
+    return cycle_munchify(x, factory, dict())
+
+def cycle_munchify(x, factory, seen):
+    try:
+        return seen[id(x)]
+    except KeyError:
+        pass
+
     if isinstance(x, Mapping):
-        return factory((k, munchify(x[k], factory)) for k in iterkeys(x))
-    elif isinstance(x, (list, tuple)):
-        return type(x)(munchify(v, factory) for v in x)
+        m = seen[id(x)] = factory(dict())
+        m.update((k, cycle_munchify(x[k], factory, seen)) for k in iterkeys(x))
+    elif isinstance(x, tuple):
+        m = seen[id(x)] = type(x)(cycle_munchify(v, factory, seen) for v in x)
+    elif isinstance(x, list):
+        m = seen[id(x)] = type(x)()
+        m.extend(type(x)(cycle_munchify(v, factory, seen) for v in x))
     else:
-        return x
+        m = seen[id(x)] = x
+
+    return m
 
 
 def unmunchify(x):
@@ -422,12 +436,27 @@ def unmunchify(x):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
+    return cycle_unmunchify(x, dict())
+
+def cycle_unmunchify(x, seen):
+    try:
+        return seen[id(x)]
+    except KeyError:
+        pass
+
     if isinstance(x, Mapping):
-        return dict((k, unmunchify(x[k])) for k in iterkeys(x))
-    elif isinstance(x, (list, tuple)):
-        return type(x)(unmunchify(v) for v in x)
+        unm = seen[id(x)] = dict()
+        unm.update((k, cycle_unmunchify(x[k], seen)) for k in iterkeys(x))
+    elif isinstance(x, tuple):
+        unm = seen[id(x)] = type(x)(cycle_unmunchify(v, seen) for v in x)
+    elif isinstance(x, list):
+        unm = seen[id(x)] = type(x)()
+        unm.extend(type(x)(cycle_unmunchify(v, seen) for v in x))
     else:
-        return x
+        unm = seen[id(x)] = x
+
+    return unm
+
 
 
 # Serialization

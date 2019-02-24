@@ -348,6 +348,27 @@ def test_munchify_default_factory():
     assert b.urmom.sez.ni is not b.urdad
 
 
+def test_munchify_cycle():
+    x = dict(id="x")
+    y = dict(x=x, id="y")
+    x['y'] = y
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y.id == "y"
+    assert m.y.x.id == "x"
+
+def test_unmunchify_cycle():
+    x = Munch(id="x")
+    y = Munch(x=x, id="y")
+    x['y'] = y
+    
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"]["id"] == "y"
+    assert d["y"]["x"]["id"] == "x"
+
+
 def test_repr_default_factory():
     b = DefaultFactoryMunch(list, foo=DefaultFactoryMunch(list, lol=True), ponies='are pretty!')
     assert repr(b).startswith("DefaultFactoryMunch(list, {'")
