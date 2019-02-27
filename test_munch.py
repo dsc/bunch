@@ -378,12 +378,36 @@ def test_munchify_cycle():
     assert m.id == "x"
     assert m.y[0] == "y"
     assert m.y[1] is m
+    
+    # dict1 -> list -> dict2 -> list
+    z = dict(id="z")
+    y = ["y", z]
+    z["y"] = y
+    x = dict(id="x", y=y)
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1].id == "z"
+    assert m.y[1].y is m.y
+
+    # dict1 -> tuple -> dict2 -> tuple
+    z = dict(id="z")
+    y = ("y", z)
+    z["y"] = y
+    x = dict(id="x", y=y)
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1].id == "z"
+    assert m.y[1].y is m.y
 
 def test_unmunchify_cycle():
     # munch -> munch -> munch
     x = Munch(id="x")
     y = Munch(x=x, id="y")
-    x['y'] = y
+    x.y = y
     
     d = unmunchify(x)
     assert d["id"] == "x"
@@ -410,6 +434,29 @@ def test_unmunchify_cycle():
     assert d["y"][0] == "y"
     assert d["y"][1] is d
     
+    # munch1 -> list -> munch2 -> list
+    z = Munch(id="z")
+    y = ["y", z]
+    z.y = y
+    x = Munch(id="x", y=y)
+    
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1]["id"] == "z"
+    assert d["y"][1]["y"] is d["y"]
+
+    # munch1 -> tuple -> munch2 -> tuple
+    z = Munch(id="z")
+    y = ("y", z)
+    z.y = y
+    x = Munch(id="x", y=y)
+    
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1]["id"] == "z"
+    assert d["y"][1]["y"] is d["y"]
 
 
 def test_repr_default_factory():
