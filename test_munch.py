@@ -356,7 +356,7 @@ def test_munchify_cycle():
     m = munchify(x)
     assert m.id == "x"
     assert m.y.id == "y"
-    assert m.y.x.id == "x"
+    assert m.y.x is m
 
 def test_unmunchify_cycle():
     x = Munch(id="x")
@@ -366,7 +366,7 @@ def test_unmunchify_cycle():
     d = unmunchify(x)
     assert d["id"] == "x"
     assert d["y"]["id"] == "y"
-    assert d["y"]["x"]["id"] == "x"
+    assert d["y"]["x"] is d
 
 
 def test_repr_default_factory():
