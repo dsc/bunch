@@ -397,40 +397,44 @@ def munchify(x, factory=Munch):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    return cycle_munchify(x, factory, dict())
+    # Munchify x, using `seen` to track object cycles
+    def munchify_cycles(x, factory, seen):
+        # If we've already begun munchifying x, just return the already-created munchified x
+        try:
+            return seen[id(x)]
+        except KeyError:
+            pass
 
-# Munchify x, use seen to track object cycles
-def cycle_munchify(x, factory, seen):
-    try:
-        return seen[id(x)]
-    except KeyError:
-        pass
+        # Otherwise, first partly munchify x (but without descending into any lists or dicts) and save that
+        m = seen[id(x)] = pre_munchify(x, factory, seen)
+        # Then finish munchifying lists and dicts inside x (reusing munchified x if cycles are encountered)
+        post_munchify(m, x, factory, seen)
+        return m
 
-    m = seen[id(x)] = cycle_premunchify(x, factory, seen)
-    cycle_postmunchify(m, x, factory, seen)
-    return m
+    def pre_munchify(x, factory, seen):
+        # Here we return a skeleton of munchified x, which is enough to save for later (in case
+        # we need to break cycles) but it needs to filled out in post_munchify later
+        if isinstance(x, Mapping):
+            return factory({})
+        elif isinstance(x, list):
+            return type(x)()
+        elif isinstance(x, tuple):
+            return type(x)(munchify_cycles(v, factory, seen) for v in x)
+        else:
+            return x
 
-def cycle_premunchify(x, factory, seen):
-    # Here we return a skeleton of munchified x, which is enough to save for later (in case we need to break cycles)
-    # but it needs to revisited later (to complete filling out any cycles we may have encountered)
-    if isinstance(x, Mapping):
-        return factory({})
-    elif isinstance(x, list):
-        return type(x)()
-    elif isinstance(x, tuple):
-        return type(x)(cycle_munchify(v, factory, seen) for v in x)
-    else:
-        return x
+    def post_munchify(m, x, factory, seen):
+        # Here we finish munchifying the parts of x that were deferred by pre_munchify because they
+        # might be involved in a cycle
+        if isinstance(x, Mapping):
+            m.update((k, munchify_cycles(x[k], factory, seen)) for k in iterkeys(x))
+        elif isinstance(x, list):
+            m.extend(munchify_cycles(v, factory, seen) for v in x)
+        elif isinstance(x, tuple):
+            for (mv, v) in zip(m, x):
+                post_munchify(mv, v, factory, seen)
 
-def cycle_postmunchify(m, x, factory, seen):
-    # Here we finish munchifying the parts of x that were skeletonized by cycle_premunchify (because they might participate in a cycle)
-    if isinstance(x, Mapping):
-        m.update((k, cycle_munchify(x[k], factory, seen)) for k in iterkeys(x))
-    elif isinstance(x, list):
-        m.extend(cycle_munchify(v, factory, seen) for v in x)
-    elif isinstance(x, tuple):
-        for (mv, v) in zip(m, x):
-            cycle_postmunchify(mv, v, factory, seen)
+    return munchify_cycles(x, factory, dict())
 
 
 def unmunchify(x):
@@ -450,40 +454,44 @@ def unmunchify(x):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    return cycle_unmunchify(x, dict())
+    # Munchify x, using `seen` to track object cycles
+    def unmunchify_cycles(x, seen):
+        # If we've already begun unmunchifying x, just return the already-created unmunchified x
+        try:
+            return seen[id(x)]
+        except KeyError:
+            pass
 
-# Unmunchify x, use seen to track object cycles
-def cycle_unmunchify(x, seen):
-    try:
-        return seen[id(x)]
-    except KeyError:
-        pass
+        # Otherwise, first partly unmunchify x (but without descending into any lists or dicts) and save that
+        unm = seen[id(x)] = pre_unmunchify(x, seen)
+        # Then finish unmunchifying lists and dicts inside x (reusing unmunchified x if cycles are encountered)
+        post_unmunchify(unm, x, seen)
+        return unm
 
-    unm = seen[id(x)] = cycle_preunmunchify(x, seen)
-    cycle_postunmunchify(unm, x, seen)
-    return unm
+    def pre_unmunchify(x, seen):
+        # Here we return a skeleton of unmunchified x, which is enough to save for later (in case
+        # we need to break cycles) but it needs to filled out in post_unmunchify later
+        if isinstance(x, Mapping):
+            return dict()
+        elif isinstance(x, list):
+            return type(x)()
+        elif isinstance(x, tuple):
+            return type(x)(unmunchify_cycles(v, seen) for v in x)
+        else:
+            return x
 
-def cycle_preunmunchify(x, seen):
-    # Here we return a skeleton of unmunchified x, which is enough to save for later (in case we need to break cycles)
-    # but it needs to revisited later (to complete filling out any cycles we may have encountered)
-    if isinstance(x, Mapping):
-        return dict()
-    elif isinstance(x, list):
-        return type(x)()
-    elif isinstance(x, tuple):
-        return type(x)(cycle_unmunchify(v, seen) for v in x)
-    else:
-        return x
+    def post_unmunchify(m, x, seen):
+        # Here we finish unmunchifying the parts of x that were deferred by pre_unmunchify because they
+        # might be involved in a cycle
+        if isinstance(x, Mapping):
+            m.update((k, unmunchify_cycles(x[k], seen)) for k in iterkeys(x))
+        elif isinstance(x, list):
+            m.extend(unmunchify_cycles(v, seen) for v in x)
+        elif isinstance(x, tuple):
+            for (mv, v) in zip(m, x):
+                post_unmunchify(mv, v, seen)
 
-def cycle_postunmunchify(m, x, seen):
-    # Here we finish unmunchifying the parts of x that were skeletonized by cycle_preunmunchify (because they might participate in a cycle)
-    if isinstance(x, Mapping):
-        m.update((k, cycle_unmunchify(x[k], seen)) for k in iterkeys(x))
-    elif isinstance(x, list):
-        m.extend(cycle_unmunchify(v, seen) for v in x)
-    elif isinstance(x, tuple):
-        for (mv, v) in zip(m, x):
-            cycle_postunmunchify(mv, v, seen)
+    return unmunchify_cycles(x, dict())
 
 
 # Serialization
