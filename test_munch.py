@@ -349,6 +349,7 @@ def test_munchify_default_factory():
 
 
 def test_munchify_cycle():
+    # dict1 -> dict2 -> dict1
     x = dict(id="x")
     y = dict(x=x, id="y")
     x['y'] = y
@@ -357,8 +358,29 @@ def test_munchify_cycle():
     assert m.id == "x"
     assert m.y.id == "y"
     assert m.y.x is m
+    
+    # dict -> list -> dict
+    x = dict(id="x")
+    y = ["y", x]
+    x["y"] = y
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1] is m
+
+    # dict -> tuple -> dict
+    x = dict(id="x")
+    y = ("y", x)
+    x["y"] = y
+
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1] is m
 
 def test_unmunchify_cycle():
+    # munch -> munch -> munch
     x = Munch(id="x")
     y = Munch(x=x, id="y")
     x['y'] = y
@@ -367,6 +389,27 @@ def test_unmunchify_cycle():
     assert d["id"] == "x"
     assert d["y"]["id"] == "y"
     assert d["y"]["x"] is d
+    
+    # munch -> list -> munch
+    x = Munch(id="x")
+    y = ["y", x]
+    x.y = y
+
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1] is d
+
+    # munch -> tuple -> munch
+    x = Munch(id="x")
+    y = ("y", x)
+    x.y = y
+
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1] is d
+    
 
 
 def test_repr_default_factory():
