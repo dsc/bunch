@@ -400,41 +400,42 @@ def munchify(x, factory=Munch):
     # Munchify x, using `seen` to track object cycles
     seen = dict()
 
-    def munchify_cycles(x):
-        # If we've already begun munchifying x, just return the already-created munchified x
+    def munchify_cycles(obj):
+        # If we've already begun munchifying obj, just return the already-created munchified obj
         try:
-            return seen[id(x)]
+            return seen[id(obj)]
         except KeyError:
             pass
 
-        # Otherwise, first partly munchify x (but without descending into any lists or dicts) and save that
-        m = seen[id(x)] = pre_munchify(x)
-        # Then finish munchifying lists and dicts inside x (reusing munchified x if cycles are encountered)
-        post_munchify(m, x)
-        return m
+        # Otherwise, first partly munchify obj (but without descending into any lists or dicts) and save that
+        seen[id(obj)] = partial = pre_munchify(obj)
+        # Then finish munchifying lists and dicts inside obj (reusing munchified obj if cycles are encountered)
+        return post_munchify(partial, obj)
 
-    def pre_munchify(x):
-        # Here we return a skeleton of munchified x, which is enough to save for later (in case
-        # we need to break cycles) but it needs to filled out in post_munchify later
-        if isinstance(x, Mapping):
+    def pre_munchify(obj):
+        # Here we return a skeleton of munchified obj, which is enough to save for later (in case
+        # we need to break cycles) but it needs to filled out in post_munchify 
+        if isinstance(obj, Mapping):
             return factory({})
-        elif isinstance(x, list):
-            return type(x)()
-        elif isinstance(x, tuple):
-            return type(x)(munchify_cycles(v) for v in x)
+        elif isinstance(obj, list):
+            return type(obj)()
+        elif isinstance(obj, tuple):
+            return type(obj)(munchify_cycles(item) for item in obj)
         else:
-            return x
+            return obj
 
-    def post_munchify(m, x):
-        # Here we finish munchifying the parts of x that were deferred by pre_munchify because they
+    def post_munchify(partial, obj):
+        # Here we finish munchifying the parts of obj that were deferred by pre_munchify because they
         # might be involved in a cycle
-        if isinstance(x, Mapping):
-            m.update((k, munchify_cycles(x[k])) for k in iterkeys(x))
-        elif isinstance(x, list):
-            m.extend(munchify_cycles(v) for v in x)
-        elif isinstance(x, tuple):
-            for (mv, v) in zip(m, x):
-                post_munchify(mv, v)
+        if isinstance(obj, Mapping):
+            partial.update((k, munchify_cycles(obj[k])) for k in iterkeys(obj))
+        elif isinstance(obj, list):
+            partial.extend(munchify_cycles(item) for item in obj)
+        elif isinstance(obj, tuple):
+            for (item_partial, item) in zip(partial, obj):
+                post_munchify(item_partial, item)
+                
+        return partial
 
     return munchify_cycles(x)
 
@@ -460,41 +461,42 @@ def unmunchify(x):
     # Munchify x, using `seen` to track object cycles
     seen = dict()
 
-    def unmunchify_cycles(x):
-        # If we've already begun unmunchifying x, just return the already-created unmunchified x
+    def unmunchify_cycles(obj):
+        # If we've already begun unmunchifying obj, just return the already-created unmunchified obj
         try:
-            return seen[id(x)]
+            return seen[id(obj)]
         except KeyError:
             pass
 
-        # Otherwise, first partly unmunchify x (but without descending into any lists or dicts) and save that
-        unm = seen[id(x)] = pre_unmunchify(x)
-        # Then finish unmunchifying lists and dicts inside x (reusing unmunchified x if cycles are encountered)
-        post_unmunchify(unm, x)
-        return unm
+        # Otherwise, first partly unmunchify obj (but without descending into any lists or dicts) and save that
+        seen[id(obj)] = partial = pre_unmunchify(obj)
+        # Then finish unmunchifying lists and dicts inside obj (reusing unmunchified obj if cycles are encountered)
+        return post_unmunchify(partial, obj)
 
-    def pre_unmunchify(x):
-        # Here we return a skeleton of unmunchified x, which is enough to save for later (in case
-        # we need to break cycles) but it needs to filled out in post_unmunchify later
-        if isinstance(x, Mapping):
+    def pre_unmunchify(obj):
+        # Here we return a skeleton of unmunchified obj, which is enough to save for later (in case
+        # we need to break cycles) but it needs to filled out in post_unmunchify
+        if isinstance(obj, Mapping):
             return dict()
-        elif isinstance(x, list):
-            return type(x)()
-        elif isinstance(x, tuple):
-            return type(x)(unmunchify_cycles(v) for v in x)
+        elif isinstance(obj, list):
+            return type(obj)()
+        elif isinstance(obj, tuple):
+            return type(obj)(unmunchify_cycles(item) for item in obj)
         else:
-            return x
+            return obj
 
-    def post_unmunchify(m, x):
-        # Here we finish unmunchifying the parts of x that were deferred by pre_unmunchify because they
+    def post_unmunchify(partial, obj):
+        # Here we finish unmunchifying the parts of obj that were deferred by pre_unmunchify because they
         # might be involved in a cycle
-        if isinstance(x, Mapping):
-            m.update((k, unmunchify_cycles(x[k])) for k in iterkeys(x))
-        elif isinstance(x, list):
-            m.extend(unmunchify_cycles(v) for v in x)
-        elif isinstance(x, tuple):
-            for (mv, v) in zip(m, x):
-                post_unmunchify(mv, v)
+        if isinstance(obj, Mapping):
+            partial.update((k, unmunchify_cycles(obj[k])) for k in iterkeys(obj))
+        elif isinstance(obj, list):
+            partial.extend(unmunchify_cycles(v) for v in obj)
+        elif isinstance(obj, tuple):
+            for (value_partial, value) in zip(partial, obj):
+                post_unmunchify(value_partial, value)
+                
+        return partial
 
     return unmunchify_cycles(x)
 
