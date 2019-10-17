@@ -162,6 +162,12 @@ def test_unmunchify():
     assert sorted(unmunchify(b).items()) == [('foo', ['bar', {'lol': True}]), ('hello', 42), ('ponies', ('are pretty!', {'lies': 'are trouble!'}))]
 
 
+def test_unmunchify_namedtuple():
+    nt = namedtuple('nt', ['prop_a', 'prop_b'])
+    b = Munch(foo=Munch(lol=True), hello=nt(prop_a=42, prop_b='yop'), ponies='are pretty!')
+    assert sorted(unmunchify(b).items()) == [('foo', {'lol': True}), ('hello', nt(prop_a=42, prop_b='yop')), ('ponies', 'are pretty!')]
+
+
 def test_toJSON():
     b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
     assert json.dumps(b) == b.toJSON()

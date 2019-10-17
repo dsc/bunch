@@ -394,7 +394,8 @@ def unmunchify(x):
     if isinstance(x, dict):
         return dict((k, unmunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)(unmunchify(v) for v in x)
+        type_factory = getattr(x, '_make', type(x))
+        return type_factory(unmunchify(v) for v in x)
     else:
         return x
 
