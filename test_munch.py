@@ -150,9 +150,8 @@ def test_munchify_with_namedtuple():
     assert b.top.prop_b == 3
 
     b = munchify({'top': {'middle': nt(prop_a={'leaf': 'should be munchified'}, prop_b={'leaf': 'should be munchified'})}})
-    assert b.top.middle.leaf == 'should be munchified'
-    assert b.top.prop_a.middle.leaf == 'should be munchified'
-    assert b.top.prop_b.middle.leaf == 'should be munchified'
+    assert b.top.middle.prop_a.leaf == 'should be munchified'
+    assert b.top.middle.prop_b.leaf == 'should be munchified'
 
 
 def test_unmunchify():
