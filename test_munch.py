@@ -1,5 +1,7 @@
 import json
 import pickle
+from collections import namedtuple
+
 import pytest
 from munch import DefaultFactoryMunch, AutoMunch, DefaultMunch, Munch, munchify, unmunchify
 
@@ -139,6 +141,18 @@ def test_munchify():
     b = munchify({'lol': ('cats', {'hah': 'i win again'}), 'hello': [{'french': 'salut', 'german': 'hallo'}]})
     assert b.hello[0].french == 'salut'
     assert b.lol[1].hah == 'i win again'
+
+def test_munchify_with_namedtuple():
+    nt = namedtuple('nt', ['prop_a', 'prop_b'])
+
+    b = munchify({'top': nt('in named tuple', 3)})
+    assert b.top.prop_a == 'in named tuple'
+    assert b.top.prop_b == 3
+
+    b = munchify({'top': {'middle': nt(prop_a={'leaf': 'should be munchified'}, prop_b={'leaf': 'should be munchified'})}})
+    assert b.top.middle.leaf == 'should be munchified'
+    assert b.top.prop_a.middle.leaf == 'should be munchified'
+    assert b.top.prop_b.middle.leaf == 'should be munchified'
 
 
 def test_unmunchify():
