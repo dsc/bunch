@@ -1,5 +1,7 @@
 import json
 import pickle
+from collections import namedtuple
+
 import pytest
 from munch import DefaultFactoryMunch, AutoMunch, DefaultMunch, Munch, munchify, unmunchify
 
@@ -140,6 +142,17 @@ def test_munchify():
     assert b.hello[0].french == 'salut'
     assert b.lol[1].hah == 'i win again'
 
+def test_munchify_with_namedtuple():
+    nt = namedtuple('nt', ['prop_a', 'prop_b'])
+
+    b = munchify({'top': nt('in named tuple', 3)})
+    assert b.top.prop_a == 'in named tuple'
+    assert b.top.prop_b == 3
+
+    b = munchify({'top': {'middle': nt(prop_a={'leaf': 'should be munchified'}, prop_b={'leaf': 'should be munchified'})}})
+    assert b.top.middle.prop_a.leaf == 'should be munchified'
+    assert b.top.middle.prop_b.leaf == 'should be munchified'
+
 
 def test_unmunchify():
     b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
@@ -147,6 +160,12 @@ def test_unmunchify():
 
     b = Munch(foo=['bar', Munch(lol=True)], hello=42, ponies=('are pretty!', Munch(lies='are trouble!')))
     assert sorted(unmunchify(b).items()) == [('foo', ['bar', {'lol': True}]), ('hello', 42), ('ponies', ('are pretty!', {'lies': 'are trouble!'}))]
+
+
+def test_unmunchify_namedtuple():
+    nt = namedtuple('nt', ['prop_a', 'prop_b'])
+    b = Munch(foo=Munch(lol=True), hello=nt(prop_a=42, prop_b='yop'), ponies='are pretty!')
+    assert sorted(unmunchify(b).items()) == [('foo', {'lol': True}), ('hello', nt(prop_a=42, prop_b='yop')), ('ponies', 'are pretty!')]
 
 
 def test_toJSON():

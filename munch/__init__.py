@@ -27,8 +27,7 @@ VERSION = tuple(map(int, __version__.split('.')))
 __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchify')
 
 
-from collections import defaultdict
-
+from collections import defaultdict, namedtuple
 
 from .python3_compat import *   # pylint: disable=wildcard-import
 
@@ -366,7 +365,11 @@ def munchify(x, factory=Munch):
     if isinstance(x, dict):
         return factory((k, munchify(v, factory)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)(munchify(v, factory) for v in x)
+        # namedtuples need special handling as they have a constructor that takes individual arguments and thus their
+        # '_make' method should be used instead (which takes a single iterable just like a normal tuple). There is no
+        # way to reliably identify a namedtuple, so this is just heuristic.
+        type_factory = getattr(x, '_make', type(x))
+        return type_factory(munchify(v, factory) for v in x)
     else:
         return x
 
@@ -391,7 +394,8 @@ def unmunchify(x):
     if isinstance(x, dict):
         return dict((k, unmunchify(v)) for k, v in iteritems(x))
     elif isinstance(x, (list, tuple)):
-        return type(x)(unmunchify(v) for v in x)
+        type_factory = getattr(x, '_make', type(x))
+        return type_factory(unmunchify(v) for v in x)
     else:
         return x
 
