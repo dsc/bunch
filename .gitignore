@@ -6,7 +6,10 @@
 .coverage
 .env
 .tox
+.eggs
 dist/
+AUTHORS
+ChangeLog
 /.pytest_cache
 flycheck_*
 *.vscode
