@@ -414,7 +414,7 @@ def munchify(x, factory=Munch):
 
     def pre_munchify(obj):
         # Here we return a skeleton of munchified obj, which is enough to save for later (in case
-        # we need to break cycles) but it needs to filled out in post_munchify 
+        # we need to break cycles) but it needs to filled out in post_munchify
         if isinstance(obj, Mapping):
             return factory({})
         elif isinstance(obj, list):
@@ -434,7 +434,7 @@ def munchify(x, factory=Munch):
         elif isinstance(obj, tuple):
             for (item_partial, item) in zip(partial, obj):
                 post_munchify(item_partial, item)
-                
+
         return partial
 
     return munchify_cycles(x)
@@ -495,7 +495,7 @@ def unmunchify(x):
         elif isinstance(obj, tuple):
             for (value_partial, value) in zip(partial, obj):
                 post_unmunchify(value_partial, value)
-                
+
         return partial
 
     return unmunchify_cycles(x)
@@ -573,8 +573,13 @@ try:
         """
         return dumper.represent_mapping(u('!munch.Munch'), data)
 
-    yaml.add_constructor(u('!munch'), from_yaml)
-    yaml.add_constructor(u('!munch.Munch'), from_yaml)
+    for loader_name in ("BaseLoader", "FullLoader", "SafeLoader", "Loader", "UnsafeLoader", "DangerLoader"):
+        loader = getattr(yaml, loader_name, None)
+        if loader is None:
+            # This code supports both PyYAML 4.x and 5.x versions
+            continue
+        yaml.add_constructor(u('!munch'), from_yaml, Loader=loader)
+        yaml.add_constructor(u('!munch.Munch'), from_yaml, Loader=loader)
 
     SafeRepresenter.add_representer(Munch, to_yaml_safe)
     SafeRepresenter.add_multi_representer(Munch, to_yaml_safe)
