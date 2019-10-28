@@ -28,7 +28,6 @@ __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchi
 
 
 from collections import defaultdict, namedtuple
-
 from .python3_compat import *   # pylint: disable=wildcard-import
 
 
@@ -71,6 +70,8 @@ class Munch(dict):
 
         See unmunchify/Munch.toDict, munchify/Munch.fromDict for notes about conversion.
     """
+    def __init__(self, *args, **kwargs):  # pylint: disable=super-init-not-called
+        self.update(*args, **kwargs)
 
     # only called if k not found in normal places
     def __getattr__(self, k):
@@ -224,13 +225,38 @@ class Munch(dict):
     def copy(self):
         return type(self).fromDict(self)
 
+    def update(self, *args, **kwargs):
+        """
+        Override built-in method to call custom __setitem__ method that may
+        be defined in subclasses.
+        """
+        for k, v in iteritems(dict(*args, **kwargs)):
+            self[k] = v
+
+    def get(self, k, d=None):
+        """
+        D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.
+        """
+        try:
+            return self[k]
+        except KeyError:
+            return d
+
+    def setdefault(self, k, d=None):
+        """
+        D.setdefault(k[,d]) -> D.get(k,d), also set D[k]=d if k not in D
+        """
+        if k not in self:
+            self[k] = d
+        return self[k]
+
 
 class AutoMunch(Munch):
     def __setattr__(self, k, v):
         """ Works the same as Munch.__setattr__ but if you supply
             a dictionary as value it will convert it to another Munch.
         """
-        if isinstance(v, dict) and not isinstance(v, (AutoMunch, Munch)):
+        if isinstance(v, Mapping) and not isinstance(v, (AutoMunch, Munch)):
             v = munchify(v, AutoMunch)
         super(AutoMunch, self).__setattr__(k, v)
 
@@ -304,7 +330,7 @@ class DefaultMunch(Munch):
             type(self).__name__, self.__undefined__, dict.__repr__(self))
 
 
-class DefaultFactoryMunch(defaultdict, Munch):
+class DefaultFactoryMunch(Munch):
     """ A Munch that calls a user-specified function to generate values for
         missing keys like collections.defaultdict.
 
@@ -319,8 +345,8 @@ class DefaultFactoryMunch(defaultdict, Munch):
     """
 
     def __init__(self, default_factory, *args, **kwargs):
-        # pylint: disable=useless-super-delegation
-        super(DefaultFactoryMunch, self).__init__(default_factory, *args, **kwargs)
+        super(DefaultFactoryMunch, self).__init__(*args, **kwargs)
+        self.default_factory = default_factory
 
     @classmethod
     def fromDict(cls, d, default_factory):
@@ -334,6 +360,16 @@ class DefaultFactoryMunch(defaultdict, Munch):
         factory = self.default_factory.__name__
         return '{0}({1}, {2})'.format(
             type(self).__name__, factory, dict.__repr__(self))
+
+    def __setattr__(self, k, v):
+        if k == 'default_factory':
+            object.__setattr__(self, k, v)
+        else:
+            super(DefaultFactoryMunch, self).__setattr__(k, v)
+
+    def __missing__(self, k):
+        self[k] = self.default_factory()
+        return self[k]
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
@@ -362,16 +398,48 @@ def munchify(x, factory=Munch):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
-        return factory((k, munchify(v, factory)) for k, v in iteritems(x))
-    elif isinstance(x, (list, tuple)):
-        # namedtuples need special handling as they have a constructor that takes individual arguments and thus their
-        # '_make' method should be used instead (which takes a single iterable just like a normal tuple). There is no
-        # way to reliably identify a namedtuple, so this is just heuristic.
-        type_factory = getattr(x, '_make', type(x))
-        return type_factory(munchify(v, factory) for v in x)
-    else:
-        return x
+    # Munchify x, using `seen` to track object cycles
+    seen = dict()
+
+    def munchify_cycles(obj):
+        # If we've already begun munchifying obj, just return the already-created munchified obj
+        try:
+            return seen[id(obj)]
+        except KeyError:
+            pass
+
+        # Otherwise, first partly munchify obj (but without descending into any lists or dicts) and save that
+        seen[id(obj)] = partial = pre_munchify(obj)
+        # Then finish munchifying lists and dicts inside obj (reusing munchified obj if cycles are encountered)
+        return post_munchify(partial, obj)
+
+    def pre_munchify(obj):
+        # Here we return a skeleton of munchified obj, which is enough to save for later (in case
+        # we need to break cycles) but it needs to filled out in post_munchify
+        if isinstance(obj, Mapping):
+            return factory({})
+        elif isinstance(obj, list):
+            return type(obj)()
+        elif isinstance(obj, tuple):
+            type_factory = getattr(obj, "_make", type(obj))
+            return type_factory(munchify_cycles(item) for item in obj)
+        else:
+            return obj
+
+    def post_munchify(partial, obj):
+        # Here we finish munchifying the parts of obj that were deferred by pre_munchify because they
+        # might be involved in a cycle
+        if isinstance(obj, Mapping):
+            partial.update((k, munchify_cycles(obj[k])) for k in iterkeys(obj))
+        elif isinstance(obj, list):
+            partial.extend(munchify_cycles(item) for item in obj)
+        elif isinstance(obj, tuple):
+            for (item_partial, item) in zip(partial, obj):
+                post_munchify(item_partial, item)
+
+        return partial
+
+    return munchify_cycles(x)
 
 
 def unmunchify(x):
@@ -391,13 +459,49 @@ def unmunchify(x):
 
         nb. As dicts are not hashable, they cannot be nested in sets/frozensets.
     """
-    if isinstance(x, dict):
-        return dict((k, unmunchify(v)) for k, v in iteritems(x))
-    elif isinstance(x, (list, tuple)):
-        type_factory = getattr(x, '_make', type(x))
-        return type_factory(unmunchify(v) for v in x)
-    else:
-        return x
+
+    # Munchify x, using `seen` to track object cycles
+    seen = dict()
+
+    def unmunchify_cycles(obj):
+        # If we've already begun unmunchifying obj, just return the already-created unmunchified obj
+        try:
+            return seen[id(obj)]
+        except KeyError:
+            pass
+
+        # Otherwise, first partly unmunchify obj (but without descending into any lists or dicts) and save that
+        seen[id(obj)] = partial = pre_unmunchify(obj)
+        # Then finish unmunchifying lists and dicts inside obj (reusing unmunchified obj if cycles are encountered)
+        return post_unmunchify(partial, obj)
+
+    def pre_unmunchify(obj):
+        # Here we return a skeleton of unmunchified obj, which is enough to save for later (in case
+        # we need to break cycles) but it needs to filled out in post_unmunchify
+        if isinstance(obj, Mapping):
+            return dict()
+        elif isinstance(obj, list):
+            return type(obj)()
+        elif isinstance(obj, tuple):
+            type_factory = getattr(obj, "_make", type(obj))
+            return type_factory(unmunchify_cycles(item) for item in obj)
+        else:
+            return obj
+
+    def post_unmunchify(partial, obj):
+        # Here we finish unmunchifying the parts of obj that were deferred by pre_unmunchify because they
+        # might be involved in a cycle
+        if isinstance(obj, Mapping):
+            partial.update((k, unmunchify_cycles(obj[k])) for k in iterkeys(obj))
+        elif isinstance(obj, list):
+            partial.extend(unmunchify_cycles(v) for v in obj)
+        elif isinstance(obj, tuple):
+            for (value_partial, value) in zip(partial, obj):
+                post_unmunchify(value_partial, value)
+
+        return partial
+
+    return unmunchify_cycles(x)
 
 
 # Serialization

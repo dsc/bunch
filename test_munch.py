@@ -367,6 +367,117 @@ def test_munchify_default_factory():
     assert b.urmom.sez.ni is not b.urdad
 
 
+def test_munchify_cycle():
+    # dict1 -> dict2 -> dict1
+    x = dict(id="x")
+    y = dict(x=x, id="y")
+    x['y'] = y
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y.id == "y"
+    assert m.y.x is m
+    
+    # dict -> list -> dict
+    x = dict(id="x")
+    y = ["y", x]
+    x["y"] = y
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1] is m
+
+    # dict -> tuple -> dict
+    x = dict(id="x")
+    y = ("y", x)
+    x["y"] = y
+
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1] is m
+    
+    # dict1 -> list -> dict2 -> list
+    z = dict(id="z")
+    y = ["y", z]
+    z["y"] = y
+    x = dict(id="x", y=y)
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1].id == "z"
+    assert m.y[1].y is m.y
+
+    # dict1 -> tuple -> dict2 -> tuple
+    z = dict(id="z")
+    y = ("y", z)
+    z["y"] = y
+    x = dict(id="x", y=y)
+    
+    m = munchify(x)
+    assert m.id == "x"
+    assert m.y[0] == "y"
+    assert m.y[1].id == "z"
+    assert m.y[1].y is m.y
+
+def test_unmunchify_cycle():
+    # munch -> munch -> munch
+    x = Munch(id="x")
+    y = Munch(x=x, id="y")
+    x.y = y
+    
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"]["id"] == "y"
+    assert d["y"]["x"] is d
+    
+    # munch -> list -> munch
+    x = Munch(id="x")
+    y = ["y", x]
+    x.y = y
+
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1] is d
+
+    # munch -> tuple -> munch
+    x = Munch(id="x")
+    y = ("y", x)
+    x.y = y
+
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1] is d
+    
+    # munch1 -> list -> munch2 -> list
+    z = Munch(id="z")
+    y = ["y", z]
+    z.y = y
+    x = Munch(id="x", y=y)
+    
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1]["id"] == "z"
+    assert d["y"][1]["y"] is d["y"]
+
+    # munch1 -> tuple -> munch2 -> tuple
+    z = Munch(id="z")
+    y = ("y", z)
+    z.y = y
+    x = Munch(id="x", y=y)
+    
+    d = unmunchify(x)
+    assert d["id"] == "x"
+    assert d["y"][0] == "y"
+    assert d["y"][1]["id"] == "z"
+    assert d["y"][1]["y"] is d["y"]
+
+
 def test_repr_default_factory():
     b = DefaultFactoryMunch(list, foo=DefaultFactoryMunch(list, lol=True), ponies='are pretty!')
     assert repr(b).startswith("DefaultFactoryMunch(list, {'")
@@ -383,3 +494,35 @@ def test_pickling_unpickling_nested():
     result = pickle.loads(pickle.dumps(m))
     assert result == m
     assert isinstance(result.a, Munch)
+
+
+def test_setitem_dunder_for_subclass():
+
+    def test_class(cls, *args):
+        class CustomMunch(cls):
+            def __setitem__(self, k, v):
+                super(CustomMunch, self).__setitem__(k, [v] * 2)
+        custom_munch = CustomMunch(*args, a='foo')
+        assert custom_munch.a == ['foo', 'foo']
+        regular_dict = {}
+        regular_dict.update(custom_munch)
+        assert regular_dict['a'] == ['foo', 'foo']
+        assert repr(regular_dict) == "{'a': ['foo', 'foo']}"
+        custom_munch.setdefault('bar', 'baz')
+        assert custom_munch.bar == ['baz', 'baz']
+
+    test_class(Munch)
+    test_class(DefaultFactoryMunch, list)
+    test_class(DefaultMunch, 42)
+
+
+def test_getitem_dunder_for_subclass():
+    class CustomMunch(Munch):
+        def __getitem__(self, k):
+            return 42
+
+    custom_munch = CustomMunch(a='foo')
+    custom_munch.update({'b': 1})
+    assert custom_munch.a == 42
+    assert custom_munch.get('b') == 42
+    assert custom_munch.copy() == Munch(a=42, b=42)
