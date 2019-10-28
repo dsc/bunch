@@ -21,14 +21,15 @@
     converted via Munch.to/fromDict().
 """
 
-__version__ = '2.3.2'
-VERSION = tuple(map(int, __version__.split('.')))
+import pkg_resources
+
+from .python3_compat import iterkeys, iteritems, Mapping, u
+
+__version__ = pkg_resources.get_distribution('munch').version
+VERSION = tuple(map(int, __version__.split('.')[:3]))
 
 __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchify')
 
-
-from collections import defaultdict, namedtuple
-from .python3_compat import *   # pylint: disable=wildcard-import
 
 
 class Munch(dict):
