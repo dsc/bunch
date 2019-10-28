@@ -472,8 +472,13 @@ try:
         """
         return dumper.represent_mapping(u('!munch.Munch'), data)
 
-    yaml.add_constructor(u('!munch'), from_yaml)
-    yaml.add_constructor(u('!munch.Munch'), from_yaml)
+    for loader_name in ("BaseLoader", "FullLoader", "SafeLoader", "Loader", "UnsafeLoader", "DangerLoader"):
+        LoaderCls = getattr(yaml, loader_name, None)
+        if LoaderCls is None:
+            # This code supports both PyYAML 4.x and 5.x versions
+            continue
+        yaml.add_constructor(u('!munch'), from_yaml, Loader=LoaderCls)
+        yaml.add_constructor(u('!munch.Munch'), from_yaml, Loader=LoaderCls)
 
     SafeRepresenter.add_representer(Munch, to_yaml_safe)
     SafeRepresenter.add_multi_representer(Munch, to_yaml_safe)
