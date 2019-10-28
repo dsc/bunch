@@ -8,9 +8,10 @@ munch
 
 munch is a fork of David Schoonover's **Bunch** package, providing similar functionality. 99% of the work was done by him, and the fork was made mainly for lack of responsiveness for fixes and maintenance on the original code.
 
-Munch is a dictionary that supports attribute-style access, a la JavaScript.
+Munch is a dictionary that supports attribute-style access, a la JavaScript:
 
-````py
+```python
+
 >>> b = Munch()
 >>> b.hello = 'world'
 >>> b.hello
@@ -23,7 +24,8 @@ Munch is a dictionary that supports attribute-style access, a la JavaScript.
 True
 >>> b.foo is b['foo']
 True
-````
+
+```
 
 
 Dictionary Methods
@@ -31,32 +33,40 @@ Dictionary Methods
 
 A Munch is a subclass of ``dict``; it supports all the methods a ``dict`` does:
 
-````py
->>> b.keys()
-['foo', 'hello']
-````
+```python
+
+>>> list(b.keys())
+['hello', 'foo']
+
+```
 
 Including ``update()``:
 
-````py
+```python
+
 >>> b.update({ 'ponies': 'are pretty!' }, hello=42)
->>> print repr(b)
-Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
-````
+>>> print(repr(b))
+Munch({'hello': 42, 'foo': Munch({'lol': True}), 'ponies': 'are pretty!'})
+
+```
 
 As well as iteration:
 
-````py
+```python
+
 >>> [ (k,b[k]) for k in b ]
-[('ponies', 'are pretty!'), ('foo', Munch(lol=True)), ('hello', 42)]
-````
+[('hello', 42), ('foo', Munch({'lol': True})), ('ponies', 'are pretty!')]
+
+```
 
 And "splats":
 
-````py
+```python
+
 >>> "The {knights} who say {ni}!".format(**Munch(knights='lolcats', ni='can haz'))
 'The lolcats who say can haz!'
-````
+
+```
 
 
 Serialization
@@ -64,25 +74,29 @@ Serialization
 
 Munches happily and transparently serialize to JSON and YAML.
 
-````py
+```python
+
 >>> b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
 >>> import json
 >>> json.dumps(b)
-'{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
-````
+'{"foo": {"lol": true}, "hello": 42, "ponies": "are pretty!"}'
+
+```
 
 If JSON support is present (``json`` or ``simplejson``), ``Munch`` will have a ``toJSON()`` method which returns the object as a JSON string.
 
 If you have [PyYAML](http://pyyaml.org/wiki/PyYAML) installed, Munch attempts to register itself with the various YAML Representers so that Munches can be transparently dumped and loaded.
 
-````py
+```python
+
 >>> b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
 >>> import yaml
 >>> yaml.dump(b)
-'!munch.Munch\nfoo: !munch.Munch {lol: true}\nhello: 42\nponies: are pretty!\n'
+'!munch.Munch\nfoo: !munch.Munch\n  lol: true\nhello: 42\nponies: are pretty!\n'
 >>> yaml.safe_dump(b)
-'foo: {lol: true}\nhello: 42\nponies: are pretty!\n'
-````
+'foo:\n  lol: true\nhello: 42\nponies: are pretty!\n'
+
+```
 
 In addition, Munch instances will have a ``toYAML()`` method that returns the YAML string using ``yaml.safe_dump()``. This method also replaces ``__str__`` if present, as I find it far more readable. You can revert back to Python's default use of ``__repr__`` with a simple assignment: ``Munch.__str__ = Munch.__repr__``. The Munch class will also have a static method ``Munch.fromYAML()``, which loads a Munch out of a YAML string.
 
@@ -94,29 +108,34 @@ Default Values
 
 ``DefaultMunch`` instances return a specific default value when an attribute is missing from the collection. Like ``collections.defaultdict``, the first argument is the value to use for missing keys:
 
-````py
+```python
+
 >>> undefined = object()
 >>> b = DefaultMunch(undefined, {'hello': 'world!'})
 >>> b.hello
 'world!'
 >>> b.foo is undefined
 True
-````
+
+```
 
 ``DefaultMunch.fromDict()`` also takes the ``default`` argument:
 
-````py
+```python
+
 >>> undefined = object()
 >>> b = DefaultMunch.fromDict({'recursively': {'nested': 'value'}}, undefined)
 >>> b.recursively.nested == 'value'
 True
 >>> b.recursively.foo is undefined
 True
-````
+
+```
 
 Or you can use ``DefaultFactoryMunch`` to specify a factory for generating missing attributes. The first argument is the factory:
 
-````py
+```python
+
 >>> b = DefaultFactoryMunch(list, {'hello': 'world!'})
 >>> b.hello
 'world!'
@@ -125,7 +144,8 @@ Or you can use ``DefaultFactoryMunch`` to specify a factory for generating missi
 >>> b.bar.append('hello')
 >>> b.bar
 ['hello']
-````
+
+```
 
 
 Miscellaneous
