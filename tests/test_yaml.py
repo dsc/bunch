@@ -1,11 +1,7 @@
 from munch import Munch
-try:
-    import yaml
-except ImportError:
-    yaml = None
 
 
-def test_from_yaml():
+def test_from_yaml(yaml):
     data = yaml.load('''
     Flow style: !munch.Munch { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
     Block style: !munch
@@ -19,19 +15,19 @@ def test_from_yaml():
     }
 
 
-def test_to_yaml_safe():
+def test_to_yaml_safe(yaml):
     b = Munch(foo=['bar', Munch(lol=True)], hello=42)
     dumped = yaml.safe_dump(b, default_flow_style=True)
     assert dumped == '{foo: [bar, {lol: true}], hello: 42}\n'
 
 
-def test_to_yaml():
+def test_to_yaml(yaml):
     b = Munch(foo=['bar', Munch(lol=True)], hello=42)
     dumped = yaml.dump(b, default_flow_style=True)
     assert dumped == '!munch.Munch {foo: [bar, !munch.Munch {lol: true}], hello: 42}\n'
 
 
-def test_toYAML():
+def test_toYAML(yaml):
     b = Munch(foo=['bar', Munch(lol=True)], hello=42)
     assert yaml.safe_dump(b, default_flow_style=True) == '{foo: [bar, {lol: true}], hello: 42}\n'
     assert b.toYAML(default_flow_style=True) == '{foo: [bar, {lol: true}], hello: 42}\n'
