@@ -3,6 +3,7 @@ Changelog
 
 Next Version
 ------------
+* Fix return value of DefaultMunch and DefaultFactoryMunch's get method (fixes [#53](https://github.com/Infinidat/munch/issues/53))
 
 2.4.0 (2019-10-29)
 ------------------
