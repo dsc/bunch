@@ -4,6 +4,9 @@ Changelog
 Next Version
 ------------
 
+2.4.0 (2019-10-29)
+------------------
+
 * Remove usage of deprecated API: Add default loader to yaml loads ([#51](https://github.com/Infinidat/munch/pull/21))
 * Switch to PBR #49 ([#49](https://github.com/Infinidat/munch/pull/49))
 * Add constructors to all PyYAML loaders ([#47](https://github.com/Infinidat/munch/pull/47))
