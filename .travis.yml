@@ -39,9 +39,9 @@ deploy:
   user: vmalloc
   password:
     secure: m3sHHSCl+dhOKz1tT3kWGyLdLX7qUZvCxvnH2OadJZJ8ziG2X319IkqUZWolG6hSO7j4mFb9kK7PxFk81nClLUJpUrgQ4Uamui2qdgFOZBaUH5QVS8ZGvZ85/Faa3YBO4BqyMVY9SG8uNSCWvFFMY61rHBA0rOtS+ZtRyvCy2SQ=
+  distributions: sdist bdist_wheel
   on:
     tags: true
-    distributions: sdist bdist_wheel
     repo: Infinidat/munch
     python: '3.6'
     condition: $TOXENV = py36-no-deps

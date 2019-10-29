@@ -21,13 +21,15 @@
     converted via Munch.to/fromDict().
 """
 
-__version__ = '2.3.2'
-VERSION = tuple(map(int, __version__.split('.')))
+import pkg_resources
+
+from .python3_compat import iterkeys, iteritems, Mapping, u
+
+__version__ = pkg_resources.get_distribution('munch').version
+VERSION = tuple(map(int, __version__.split('.')[:3]))
 
 __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'unmunchify')
 
-
-from .python3_compat import *   # pylint: disable=wildcard-import
 
 
 class Munch(dict):
@@ -290,7 +292,7 @@ class DefaultMunch(Munch):
         if k == '__default__':
             object.__setattr__(self, k, v)
         else:
-            return super(DefaultMunch, self).__setattr__(k, v)
+            super(DefaultMunch, self).__setattr__(k, v)
 
     def __getitem__(self, k):
         """ Gets key if it exists, otherwise returns the default value."""
@@ -414,13 +416,14 @@ def munchify(x, factory=Munch):
 
     def pre_munchify(obj):
         # Here we return a skeleton of munchified obj, which is enough to save for later (in case
-        # we need to break cycles) but it needs to filled out in post_munchify 
+        # we need to break cycles) but it needs to filled out in post_munchify
         if isinstance(obj, Mapping):
             return factory({})
         elif isinstance(obj, list):
             return type(obj)()
         elif isinstance(obj, tuple):
-            return type(obj)(munchify_cycles(item) for item in obj)
+            type_factory = getattr(obj, "_make", type(obj))
+            return type_factory(munchify_cycles(item) for item in obj)
         else:
             return obj
 
@@ -434,7 +437,7 @@ def munchify(x, factory=Munch):
         elif isinstance(obj, tuple):
             for (item_partial, item) in zip(partial, obj):
                 post_munchify(item_partial, item)
-                
+
         return partial
 
     return munchify_cycles(x)
@@ -481,7 +484,8 @@ def unmunchify(x):
         elif isinstance(obj, list):
             return type(obj)()
         elif isinstance(obj, tuple):
-            return type(obj)(unmunchify_cycles(item) for item in obj)
+            type_factory = getattr(obj, "_make", type(obj))
+            return type_factory(unmunchify_cycles(item) for item in obj)
         else:
             return obj
 
@@ -495,7 +499,7 @@ def unmunchify(x):
         elif isinstance(obj, tuple):
             for (value_partial, value) in zip(partial, obj):
                 post_unmunchify(value_partial, value)
-                
+
         return partial
 
     return unmunchify_cycles(x)
@@ -573,8 +577,13 @@ try:
         """
         return dumper.represent_mapping(u('!munch.Munch'), data)
 
-    yaml.add_constructor(u('!munch'), from_yaml)
-    yaml.add_constructor(u('!munch.Munch'), from_yaml)
+    for loader_name in ("BaseLoader", "FullLoader", "SafeLoader", "Loader", "UnsafeLoader", "DangerLoader"):
+        LoaderCls = getattr(yaml, loader_name, None)
+        if LoaderCls is None:
+            # This code supports both PyYAML 4.x and 5.x versions
+            continue
+        yaml.add_constructor(u('!munch'), from_yaml, Loader=LoaderCls)
+        yaml.add_constructor(u('!munch.Munch'), from_yaml, Loader=LoaderCls)
 
     SafeRepresenter.add_representer(Munch, to_yaml_safe)
     SafeRepresenter.add_multi_representer(Munch, to_yaml_safe)
@@ -607,6 +616,7 @@ try:
             return yaml.dump(self, **opts)
 
     def fromYAML(*args, **kwargs):
+        kwargs.setdefault('Loader', yaml.FullLoader)
         return munchify(yaml.load(*args, **kwargs))
 
     Munch.toYAML = toYAML
