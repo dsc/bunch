@@ -615,12 +615,13 @@ try:
         else:
             return yaml.dump(self, **opts)
 
-    def fromYAML(*args, **kwargs):
-        kwargs.setdefault('Loader', yaml.FullLoader)
-        return munchify(yaml.load(*args, **kwargs))
+    def fromYAML(cls, stream, *args, **kwargs):
+        factory = lambda d: cls(*(args + (d,)), **kwargs)
+        loader_class = kwargs.pop('Loader', yaml.FullLoader)
+        return munchify(yaml.load(stream, Loader=loader_class), factory=factory)
 
     Munch.toYAML = toYAML
-    Munch.fromYAML = staticmethod(fromYAML)
+    Munch.fromYAML = classmethod(fromYAML)
 
 except ImportError:
     pass
