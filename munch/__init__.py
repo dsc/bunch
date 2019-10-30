@@ -238,10 +238,9 @@ class Munch(dict):
         """
         D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.
         """
-        try:
-            return self[k]
-        except KeyError:
+        if k not in self:
             return d
+        return self[k]
 
     def setdefault(self, k, d=None):
         """
