@@ -4,6 +4,9 @@ Changelog
 Next Version
 ------------
 
+2.5.0 (2019-10-30)
+------------------
+
 * Support ``fromJSON`` classmethod for all Munch subclasses (PR [#55](https://github.com/Infinidat/munch/pull/55))
 * Fix return value of DefaultMunch and DefaultFactoryMunch's get method (fixes [#53](https://github.com/Infinidat/munch/issues/53))
 * Support ``fromYAML`` classmethod for all Munch subclasses (PR [#52](https://github.com/Infinidat/munch/pull/52) fixes [#34](https://github.com/Infinidat/munch/issues/34)
