@@ -4,21 +4,28 @@ Changelog
 Next Version
 ------------
 
+2.5.0 (2019-10-30)
+------------------
+
+* Support ``fromJSON`` classmethod for all Munch subclasses (PR [#55](https://github.com/Infinidat/munch/pull/55))
+* Fix return value of DefaultMunch and DefaultFactoryMunch's get method (fixes [#53](https://github.com/Infinidat/munch/issues/53))
+* Support ``fromYAML`` classmethod for all Munch subclasses (PR [#52](https://github.com/Infinidat/munch/pull/52) fixes [#34](https://github.com/Infinidat/munch/issues/34)
+
 2.4.0 (2019-10-29)
 ------------------
 
-* Remove usage of deprecated API: Add default loader to yaml loads ([#51](https://github.com/Infinidat/munch/pull/21))
-* Switch to PBR #49 ([#49](https://github.com/Infinidat/munch/pull/49))
-* Add constructors to all PyYAML loaders ([#47](https://github.com/Infinidat/munch/pull/47))
-* Fix namedtuple handling ([#46](https://github.com/Infinidat/munch/pull/46) - thanks @atleta)
-* Correctly handle object cycles in munchify and unmunchify ([#41](https://github.com/Infinidat/munch/pull/41) - thanks @airbornemint)
-* Improve subclassing behavior ([#38](https://github.com/Infinidat/munch/pull/38) - thanks @JosePVB)
+* Remove usage of deprecated API: Add default loader to yaml loads (PR [#51](https://github.com/Infinidat/munch/pull/51))
+* Switch to PBR #49 (PR [#49](https://github.com/Infinidat/munch/pull/49))
+* Add constructors to all PyYAML loaders (PR [#47](https://github.com/Infinidat/munch/pull/47))
+* Fix namedtuple handling (PR [#46](https://github.com/Infinidat/munch/pull/46) - thanks @atleta)
+* Correctly handle object cycles in munchify and unmunchify (PR [#41](https://github.com/Infinidat/munch/pull/41) - thanks @airbornemint)
+* Improve subclassing behavior (PR [#38](https://github.com/Infinidat/munch/pull/38) - thanks @JosePVB)
 
 2.3.2 (2018-05-06)
 ------------------
 
 * Limit travis deployment conditions
-* Build python wheels ([#32](https://github.com/Infinidat/munch/pull/32) - thanks @pabelanger)
+* Build python wheels (PR [#32](https://github.com/Infinidat/munch/pull/32) - thanks @pabelanger)
 
 2.3.1 (2018-04-11)
 ------------------
@@ -29,7 +36,7 @@ Next Version
 2.3.0 (2018-04-09)
 ------------------
 
-* Remove default from constructor and fromDict, Make DefaultFactoryMunch which lets users provide a factory to generate missing values ([#28](https://github.com/Infinidat/munch/pull/28) - thanks @ekuecks)
+* Remove default from constructor and fromDict, Make DefaultFactoryMunch which lets users provide a factory to generate missing values (PR [#28](https://github.com/Infinidat/munch/pull/28) - thanks @ekuecks)
 * ``__setattr__`` will now ``munchify()`` any provided dict (PR [#27](https://github.com/Infinidat/munch/pulls/27) - thanks @kbni)
 * Implement the pickling interface (PR [#23](https://github.com/Infinidat/munch/pulls/23) & [#25](https://github.com/Infinidat/munch/pulls/25) - thanks @JamshedVesuna)
 * Drop support for Python 2.6, 3.3, 3.4

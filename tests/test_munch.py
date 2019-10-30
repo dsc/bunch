@@ -175,9 +175,21 @@ def test_unmunchify_namedtuple():
                                              ('ponies', 'are pretty!')]
 
 
-def test_toJSON():
-    b = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
-    assert json.dumps(b) == b.toJSON()
+def test_toJSON_and_fromJSON():
+    # pylint: disable=unidiomatic-typecheck
+    obj = Munch(foo=Munch(lol=True), hello=42, ponies='are pretty!')
+    obj_json = obj.toJSON()
+    assert json.dumps(obj) == obj_json
+    new_obj = Munch.fromJSON(obj_json)
+    assert type(obj) == Munch
+    assert new_obj == obj
+
+    default_value = object()
+    dm_obj = DefaultMunch.fromJSON(obj_json, default_value)
+    assert type(dm_obj) == DefaultMunch
+    assert dm_obj == obj
+    assert dm_obj['not_exist'] is default_value
+    assert dm_obj.not_exist is default_value
 
 
 @pytest.mark.parametrize("attrname", dir(Munch))
@@ -533,3 +545,7 @@ def test_getitem_dunder_for_subclass():
     assert custom_munch.a == 42
     assert custom_munch.get('b') == 42
     assert custom_munch.copy() == Munch(a=42, b=42)
+
+
+def test_get_default_value(munch_obj):
+    assert munch_obj.get("fake_key", "default_value") == "default_value"

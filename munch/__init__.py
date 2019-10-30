@@ -238,10 +238,9 @@ class Munch(dict):
         """
         D.get(k[,d]) -> D[k] if k in D, else d.  d defaults to None.
         """
-        try:
-            return self[k]
-        except KeyError:
+        if k not in self:
             return d
+        return self[k]
 
     def setdefault(self, k, d=None):
         """
@@ -522,7 +521,14 @@ try:
         """
         return json.dumps(self, **options)
 
+    def fromJSON(cls, stream, *args, **kwargs):
+        """ Deserializes JSON to Munch or any of its subclasses.
+        """
+        factory = lambda d: cls(*(args + (d,)), **kwargs)
+        return munchify(json.loads(stream), factory=factory)
+
     Munch.toJSON = toJSON
+    Munch.fromJSON = classmethod(fromJSON)
 
 except ImportError:
     pass
@@ -615,12 +621,13 @@ try:
         else:
             return yaml.dump(self, **opts)
 
-    def fromYAML(*args, **kwargs):
-        kwargs.setdefault('Loader', yaml.FullLoader)
-        return munchify(yaml.load(*args, **kwargs))
+    def fromYAML(cls, stream, *args, **kwargs):
+        factory = lambda d: cls(*(args + (d,)), **kwargs)
+        loader_class = kwargs.pop('Loader', yaml.FullLoader)
+        return munchify(yaml.load(stream, Loader=loader_class), factory=factory)
 
     Munch.toYAML = toYAML
-    Munch.fromYAML = staticmethod(fromYAML)
+    Munch.fromYAML = classmethod(fromYAML)
 
 except ImportError:
     pass

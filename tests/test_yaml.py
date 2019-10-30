@@ -1,5 +1,5 @@
 import pytest
-from munch import Munch
+from munch import Munch, DefaultMunch
 
 
 def test_from_yaml(yaml):
@@ -39,7 +39,22 @@ def test_toYAML(yaml):
 
 @pytest.mark.usefixtures('yaml')
 def test_fromYAML():
+    # pylint: disable=unidiomatic-typecheck
     yaml_str = 'foo:\n    bar:\n    - 1\n    - 2\n    hello: world\n'
     obj = Munch.fromYAML(yaml_str)
+    assert type(obj) == Munch
     assert obj == Munch(foo=Munch(bar=[1, 2], hello='world'))
+    assert obj.toYAML() == yaml_str
+
+
+@pytest.mark.usefixtures('yaml')
+def test_fromYAML_default_munch():
+    # pylint: disable=unidiomatic-typecheck
+    yaml_str = 'foo:\n    bar:\n    - 1\n    - 2\n    hello: world\n'
+    default_value = object()
+    obj = DefaultMunch.fromYAML(yaml_str, default_value)
+    assert type(obj) == DefaultMunch
+    assert obj == DefaultMunch(foo=Munch(bar=[1, 2], hello='world'))
+    assert obj['not_exist'] is default_value
+    assert obj.not_exist is default_value
     assert obj.toYAML() == yaml_str
