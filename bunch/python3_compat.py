@@ -1,6 +1,6 @@
-import platform
+import sys
 
-_IS_PYTHON_3 = (platform.version() >= '3')
+_IS_PYTHON_3 = (sys.version[0] >= '3')
 
 identity = lambda x : x
 
