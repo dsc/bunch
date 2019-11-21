@@ -372,6 +372,48 @@ class DefaultFactoryMunch(Munch):
         return self[k]
 
 
+class RecursiveMunch(Munch):
+    """A Munch that calls an instance of itself to generate values for
+        missing keys.
+
+        >>> b = RecursiveMunch({'hello': 'world!'})
+        >>> b.hello
+        'world!'
+        >>> b.foo
+        NestedMunch(<lambda>, {})
+        >>> b.bar.okay = 'hello'
+        >>> b.bar
+        NestedMunch(<lambda>, {'okay': 'hello'})
+        >>> b
+        NestedMunch(<lambda>, {'hello': 'world!', 'foo': NestedMunch(<lambda>, {}), 'bar': NestedMunch(<lambda>, {'okay': 'hello'})})
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(RecursiveMunch, self).__init__(*args, **kwargs)
+        self.default_factory = lambda: RecursiveMunch()
+
+    @classmethod
+    def fromDict(cls, d):
+        return munchify(d, factory=lambda d_: cls(d_))
+
+    def copy(self):
+        return type(self).fromDict(self)
+
+    def __repr__(self):
+        factory = self.default_factory.__name__
+        return "{0}({1}, {2})".format(type(self).__name__, factory, dict.__repr__(self))
+
+    def __setattr__(self, k, v):
+        if k == "default_factory":
+            object.__setattr__(self, k, v)
+        else:
+            super(RecursiveMunch, self).__setattr__(k, v)
+
+    def __missing__(self, k):
+        self[k] = self.default_factory()
+        return self[k]
+
+
 # While we could convert abstract types like Mapping or Iterable, I think
 # munchify is more likely to "do what you mean" if it is conservative about
 # casting (ex: isinstance(str,Iterable) == True ).
