@@ -380,21 +380,22 @@ class RecursiveMunch(Munch):
         >>> b.hello
         'world!'
         >>> b.foo
-        NestedMunch(<lambda>, {})
+        RecursiveMunch(RecursiveMunch, {})
         >>> b.bar.okay = 'hello'
         >>> b.bar
-        NestedMunch(<lambda>, {'okay': 'hello'})
+        RecursiveMunch(RecursiveMunch, {'okay': 'hello'})
         >>> b
-        NestedMunch(<lambda>, {'hello': 'world!', 'foo': NestedMunch(<lambda>, {}), 'bar': NestedMunch(<lambda>, {'okay': 'hello'})})
+        RecursiveMunch(RecursiveMunch, {'hello': 'world!', 'foo': RecursiveMunch(RecursiveMunch, {}),
+        'bar': RecursiveMunch(RecursiveMunch, {'okay': 'hello'})})
     """
 
     def __init__(self, *args, **kwargs):
         super(RecursiveMunch, self).__init__(*args, **kwargs)
-        self.default_factory = lambda: RecursiveMunch()
+        self.default_factory = RecursiveMunch
 
     @classmethod
     def fromDict(cls, d):
-        return munchify(d, factory=lambda d_: cls(d_))
+        return munchify(d, factory=cls)
 
     def copy(self):
         return type(self).fromDict(self)
