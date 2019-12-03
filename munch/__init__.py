@@ -372,7 +372,7 @@ class DefaultFactoryMunch(Munch):
         return self[k]
 
 
-class RecursiveMunch(Munch):
+class RecursiveMunch(DefaultFactoryMunch):
     """A Munch that calls an instance of itself to generate values for
         missing keys.
 
@@ -390,29 +390,12 @@ class RecursiveMunch(Munch):
     """
 
     def __init__(self, *args, **kwargs):
-        super(RecursiveMunch, self).__init__(*args, **kwargs)
-        self.default_factory = RecursiveMunch
+        super(RecursiveMunch, self).__init__(RecursiveMunch, *args, **kwargs)
 
     @classmethod
     def fromDict(cls, d):
+        # pylint: disable=arguments-differ
         return munchify(d, factory=cls)
-
-    def copy(self):
-        return type(self).fromDict(self)
-
-    def __repr__(self):
-        factory = self.default_factory.__name__
-        return "{0}({1}, {2})".format(type(self).__name__, factory, dict.__repr__(self))
-
-    def __setattr__(self, k, v):
-        if k == "default_factory":
-            object.__setattr__(self, k, v)
-        else:
-            super(RecursiveMunch, self).__setattr__(k, v)
-
-    def __missing__(self, k):
-        self[k] = self.default_factory()
-        return self[k]
 
 
 # While we could convert abstract types like Mapping or Iterable, I think
