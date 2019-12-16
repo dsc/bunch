@@ -372,6 +372,32 @@ class DefaultFactoryMunch(Munch):
         return self[k]
 
 
+class RecursiveMunch(DefaultFactoryMunch):
+    """A Munch that calls an instance of itself to generate values for
+        missing keys.
+
+        >>> b = RecursiveMunch({'hello': 'world!'})
+        >>> b.hello
+        'world!'
+        >>> b.foo
+        RecursiveMunch(RecursiveMunch, {})
+        >>> b.bar.okay = 'hello'
+        >>> b.bar
+        RecursiveMunch(RecursiveMunch, {'okay': 'hello'})
+        >>> b
+        RecursiveMunch(RecursiveMunch, {'hello': 'world!', 'foo': RecursiveMunch(RecursiveMunch, {}),
+        'bar': RecursiveMunch(RecursiveMunch, {'okay': 'hello'})})
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(RecursiveMunch, self).__init__(RecursiveMunch, *args, **kwargs)
+
+    @classmethod
+    def fromDict(cls, d):
+        # pylint: disable=arguments-differ
+        return munchify(d, factory=cls)
+
+
 # While we could convert abstract types like Mapping or Iterable, I think
 # munchify is more likely to "do what you mean" if it is conservative about
 # casting (ex: isinstance(str,Iterable) == True ).
