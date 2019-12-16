@@ -12,7 +12,8 @@ def yaml_module():
     pytest.skip("Module 'PyYAML' is required")
 
 
-@pytest.fixture(params=[munch.Munch, munch.AutoMunch, munch.DefaultMunch, munch.DefaultFactoryMunch])
+@pytest.fixture(params=[munch.Munch, munch.AutoMunch, munch.DefaultMunch, munch.DefaultFactoryMunch,
+                        munch.RecursiveMunch])
 def munch_obj(request):
     cls = request.param
     args = tuple()
