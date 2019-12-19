@@ -549,3 +549,10 @@ def test_getitem_dunder_for_subclass():
 
 def test_get_default_value(munch_obj):
     assert munch_obj.get("fake_key", "default_value") == "default_value"
+    assert isinstance(munch_obj.toJSON(), str)
+    assert isinstance(munch_obj.toYAML(), str)
+    munch_obj.copy()
+    data = munch_obj.toDict()
+    munch_cls = type(munch_obj)
+    kwargs = {} if munch_cls != DefaultFactoryMunch else {"default_factory": munch_obj.default_factory}
+    munch_cls.fromDict(data, **kwargs)

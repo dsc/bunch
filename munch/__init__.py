@@ -397,6 +397,9 @@ class RecursiveMunch(DefaultFactoryMunch):
         # pylint: disable=arguments-differ
         return munchify(d, factory=cls)
 
+    def copy(self):
+        return type(self).fromDict(self)
+
 
 # While we could convert abstract types like Mapping or Iterable, I think
 # munchify is more likely to "do what you mean" if it is conservative about

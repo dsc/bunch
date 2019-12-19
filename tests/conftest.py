@@ -5,7 +5,7 @@ import munch
 @pytest.fixture(name='yaml')
 def yaml_module():
     try:
-        import yaml
+        import yaml  # pylint: disable=import-outside-toplevel
         return yaml
     except ImportError:
         pass
