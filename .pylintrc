@@ -1,5 +1,5 @@
 [MESSAGES CONTROL]
-disable=invalid-name,missing-docstring,too-few-public-methods,no-else-return,unnecessary-comprehension
+disable=invalid-name,missing-docstring,too-few-public-methods,no-else-return,unnecessary-comprehension,bad-option-value
 
 [REPORTS]
 reports=no
