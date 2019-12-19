@@ -547,6 +547,7 @@ def test_getitem_dunder_for_subclass():
     assert custom_munch.copy() == Munch(a=42, b=42)
 
 
+@pytest.mark.usefixtures("yaml")
 def test_get_default_value(munch_obj):
     assert munch_obj.get("fake_key", "default_value") == "default_value"
     assert isinstance(munch_obj.toJSON(), str)
