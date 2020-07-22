@@ -21,11 +21,20 @@
     converted via Munch.to/fromDict().
 """
 
-import pkg_resources
-
 from .python3_compat import iterkeys, iteritems, Mapping, u
 
-__version__ = pkg_resources.get_distribution('munch').version
+try:
+    # For python 3.8 and later
+    import importlib.metadata as importlib_metadata
+except ImportError:
+    # For everyone else
+    import importlib_metadata
+try:
+    __version__ = importlib_metadata.version(__name__)
+except importlib_metadata.PackageNotFoundError:
+    # package is not installed
+    pass
+
 VERSION = tuple(map(int, __version__.split('.')[:3]))
 
 __all__ = ('Munch', 'munchify', 'DefaultMunch', 'DefaultFactoryMunch', 'RecursiveMunch', 'unmunchify')
