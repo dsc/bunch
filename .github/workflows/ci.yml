@@ -24,6 +24,8 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Ensure pip
+      run: python -m ensurepip --default-pip
     - name: Upgrade build tools and pytest
       run: pip install --upgrade pip build wheel setuptools pytest
     - name: Install dependencies
