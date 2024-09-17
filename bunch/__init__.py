@@ -58,8 +58,8 @@ class Bunch(dict):
         
         As well as iteration...
         
-        >>> [ (k,b[k]) for k in b ]
-        [('ponies', 'are pretty!'), ('foo', Bunch(lol=True)), ('hello', 42)]
+        >>> sorted([ (k,b[k]) for k in b ])
+        [('foo', Bunch(lol=True)), ('hello', 42), ('ponies', 'are pretty!')]
         
         And "splats".
         
@@ -156,10 +156,10 @@ class Bunch(dict):
             propagate as an AttributeError instead.
             
             >>> b = Bunch(lol=42)
-            >>> del b.values
+            >>> del b.values           # doctest: +ELLIPSIS
             Traceback (most recent call last):
                 ...
-            AttributeError: 'Bunch' object attribute 'values' is read-only
+            AttributeError: ...values...
             >>> del b.lol
             >>> b.lol
             Traceback (most recent call last):
@@ -311,7 +311,7 @@ def bunchify(it, BunchClass=Bunch):
         the second parameter.
     """
     if isinstance(it, Mapping):
-        return BunchClass( (k, bunchify(v, BunchClass)) for k, v in it.iteritems() )
+        return BunchClass( (k, bunchify(it[k], BunchClass)) for k in iter(it) )
     elif isinstance(it, (list, tuple)):
         return type(it)( (bunchify(v, BunchClass) for v in it) )
     else:
@@ -339,7 +339,7 @@ def unbunchify(it, DictClass=dict):
         the second parameter.
     """
     if isinstance(it, Mapping):
-        return DictClass( (k, unbunchify(v, DictClass)) for k, v in it.iteritems() )
+        return DictClass( (k, unbunchify(it[k], DictClass)) for k in iter(it) )
     elif isinstance(it, (list, tuple)):
         return type(it)( (unbunchify(v, DictClass) for v in it) )
     else:
@@ -359,9 +359,9 @@ try:
             
             >>> b = Bunch(foo=Bunch(lol=True), hello=42, ponies='are pretty!')
             >>> json.dumps(b)
-            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
+            '{"foo": {"lol": true}, "hello": 42, "ponies": "are pretty!"}'
             >>> b.toJSON()
-            '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
+            '{"foo": {"lol": true}, "hello": 42, "ponies": "are pretty!"}'
         """
         return json.dumps(self, **options)
     
@@ -382,7 +382,7 @@ try:
         """ PyYAML support for Bunches using the tag ``!bunch`` and ``!bunch.Bunch``.
             
             >>> import yaml
-            >>> yaml.load('''
+            >>> yaml.full_load('''
             ... Flow style: !bunch.Bunch { Clark: Evans, Brian: Ingerson, Oren: Ben-Kiki }
             ... Block style: !bunch
             ...   Clark : Evans
@@ -470,8 +470,11 @@ try:
             >>> Bunch.fromYAML(document)
             Bunch(foo=['bar', Bunch(lol=True)], hello=42)
             
-            Uses ``yaml.load()`` by default; pass ``safe=True`` to use the SafeLoader,
-            and/or ``all=True`` to load all documents (returning a list).
+            Uses ``yaml.load()`` by default, but accepts the following for convenience:
+            - ``safe=True`` for SafeLoader
+            - ``full=True`` for FullLoader (default)
+            - ``unsafe=True`` for UnsafeLoader
+            - ``all=True`` to load all documents (returning a list)
             
             >>> documents = '''
             ... ---
@@ -491,11 +494,16 @@ try:
               [Bunch(hp=12, level=2, name='Orc')]]
             
             All other options are passed to PyYAML, so you can still specify a
-            custom loader with ``Bunch.fromYAML(data, Loader=CustomLoader)``.
+            custom loader with ``Bunch.fromYAML(data, Loader=CustomLoader)``. (Note that 
+            supplying a kw argument ``Loader`` overrides ``safe``, ``full``, and ``unsafe``.)
+            
+            See https://msg.pyyaml.org/load for more info.
         """
-        method_name = 'load'
-        if kwargs.pop('safe', False) and 'Loader' not in kwargs:
-            method_name = 'safe_load'
+        method_name = 'full_load'
+        for prefix in ('safe', 'full', 'unsafe'):
+            # we want to pop all the prefix keys anyway, so put the test for Loader last
+            if kwargs.pop(prefix, False) and 'Loader' not in kwargs:
+                method_name = prefix+'_load'
         
         if kwargs.pop('all', False):
             data = list(getattr(yaml, method_name+'_all')(*args, **kwargs))

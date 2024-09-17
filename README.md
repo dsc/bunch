@@ -89,28 +89,30 @@ Miscellaneous
 * Ample doctests:
     
         $ python -m bunch.test
-        $ python -m bunch.test -v | tail -n22
-        1 items had no tests:
-            bunch.fromYAML
-        16 items passed all tests:
+        $ python -m bunch.test -v | tail -n24
+        20 items passed all tests:
            8 tests in bunch
           13 tests in bunch.Bunch
-           7 tests in bunch.Bunch.__contains__
+           7 tests in bunch.Bunch.__add__
+          11 tests in bunch.Bunch.__contains__
            4 tests in bunch.Bunch.__delattr__
            7 tests in bunch.Bunch.__getattr__
+           5 tests in bunch.Bunch.__iadd__
            3 tests in bunch.Bunch.__repr__
            5 tests in bunch.Bunch.__setattr__
+           5 tests in bunch.Bunch.copy
            2 tests in bunch.Bunch.fromDict
+           4 tests in bunch.Bunch.fromYAML
            2 tests in bunch.Bunch.toDict
+           3 tests in bunch.Bunch.toJSON
+           6 tests in bunch.Bunch.toYAML
            5 tests in bunch.bunchify
            2 tests in bunch.from_yaml
-           3 tests in bunch.toJSON
-           6 tests in bunch.toYAML
            3 tests in bunch.to_yaml
            3 tests in bunch.to_yaml_safe
            4 tests in bunch.unbunchify
-        77 tests in 17 items.
-        77 passed and 0 failed.
+        102 tests in 20 items.
+        102 passed and 0 failed.
         Test passed.
 
 
