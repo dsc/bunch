@@ -1,3 +1,5 @@
+__all__ = ('u', 'iteritems', 'iterkeys', 'Mapping', 'Iterator', '_get_ident')
+
 import sys
 
 _IS_PYTHON_3 = (sys.version_info >= (3,))
@@ -20,3 +22,23 @@ else:
     iteritems = dict.iteritems
     iterkeys = dict.iterkeys
 
+# abstract collections moved
+if _IS_PYTHON_3:
+    from collections.abc import Mapping, Iterator
+else:
+    from collections import Mapping, Iterator
+
+# threading in py3 was optional before 3.3
+try:
+    if _IS_PYTHON_3:
+        try:
+            from threading import get_ident as _get_ident
+        except ImportError:
+            from _thread import get_ident as _get_ident
+    else:
+        try:
+            from thread import get_ident as _get_ident
+        except ImportError:
+            from dummy_thread import get_ident as _get_ident
+finally:
+    _get_ident = lambda : 1

@@ -27,13 +27,7 @@ VERSION = tuple(map(int, __version__.split('.')))
 
 __all__ = ('Bunch', 'bunchify', 'unbunchify',)
 
-from collections import Mapping, Iterator
-try:
-    from thread import get_ident as _get_ident
-except ImportError:
-    from dummy_thread import get_ident as _get_ident
-
-from bunch.python3_compat import u, iteritems, iterkeys
+from bunch.python3_compat import *
 
 class Bunch(dict):
     """ A dictionary that provides attribute-style access.
