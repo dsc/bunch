@@ -88,10 +88,7 @@ class Bunch(dict):
             >>> False in b
             True
         """
-        try:
-            return dict.__contains__(self, k) or hasattr(self, k)
-        except:
-            return False
+        return dict.__contains__(self, k) or hasattr(self, k)
     
     # only called if k not found in normal places
     def __getattr__(self, k):
@@ -148,7 +145,7 @@ class Bunch(dict):
         except AttributeError:
             try:
                 self[k] = v
-            except:
+            except KeyError:
                 raise AttributeError(k)
         else:
             object.__setattr__(self, k, v)
