@@ -518,6 +518,12 @@ except ImportError:
     pass
 
 
+# SimpleBunch might now be available, fall back on regular Bunch in that case.
+try:
+    from _bunch import Bunch as SimpleBunch
+except ImportError:
+    SimpleBunch = Bunch
+
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
