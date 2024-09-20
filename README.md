@@ -66,7 +66,7 @@ Bunches happily and transparently serialize to JSON and YAML.
 '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
 ```
 
-If JSON support is present (``json`` or ``simplejson`` to support python <= 2.5), ``Bunch`` will have a ``toJSON()`` method which returns the object as a JSON string.
+If JSON support is present (stdlib ``json``, or ``simplejson`` to support python <= 2.5), ``Bunch`` will have a ``toJSON()`` method which returns the object as a JSON string.
 
 If you have [PyYAML](http://pyyaml.org/wiki/PyYAML) installed, Bunch attempts to register itself with the various YAML Representers so that Bunches can be transparently dumped and loaded.
 

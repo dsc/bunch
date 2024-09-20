@@ -1,4 +1,6 @@
 tmp/
+dist/
+__pycache__
 
 # Python
 pip-log.txt
