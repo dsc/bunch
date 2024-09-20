@@ -1,7 +1,7 @@
 bunch
 =====
 
-Bunch is a dictionary that supports attribute-style access, a la JavaScript.
+Bunch is a dictionary that supports attribute-style access, à la JavaScript.
 
 ```py
 >>> b = Bunch()
@@ -17,6 +17,8 @@ True
 >>> b.foo is b['foo']
 True
 ```
+
+*``bunch`` somehow still supports Python 2.5 (?!)*
 
 
 Dictionary Methods
@@ -64,7 +66,7 @@ Bunches happily and transparently serialize to JSON and YAML.
 '{"ponies": "are pretty!", "foo": {"lol": true}, "hello": 42}'
 ```
 
-If JSON support is present (``json`` or ``simplejson``), ``Bunch`` will have a ``toJSON()`` method which returns the object as a JSON string.
+If JSON support is present (``json`` or ``simplejson`` to support python <= 2.5), ``Bunch`` will have a ``toJSON()`` method which returns the object as a JSON string.
 
 If you have [PyYAML](http://pyyaml.org/wiki/PyYAML) installed, Bunch attempts to register itself with the various YAML Representers so that Bunches can be transparently dumped and loaded.
 
@@ -77,7 +79,9 @@ If you have [PyYAML](http://pyyaml.org/wiki/PyYAML) installed, Bunch attempts to
 'foo: {lol: true}\nhello: 42\nponies: are pretty!\n'
 ```
 
-In addition, Bunch instances will have a ``toYAML()`` method that returns the YAML string using ``yaml.safe_dump()``. This method also replaces ``__str__`` if present, as I find it far more readable. You can revert back to Python's default use of ``__repr__`` with a simple assignment: ``Bunch.__str__ = Bunch.__repr__``. The Bunch class will also have a static method ``Bunch.fromYAML()``, which loads a Bunch out of a YAML string.
+In addition, Bunch instances will have a ``toYAML()`` method that returns the YAML string using ``yaml.safe_dump()``. This method also replaces ``__str__`` if present, as I find it far more readable. You can revert back to Python's default use of ``__repr__`` with a simple assignment: ``Bunch.__str__ = Bunch.__repr__``. 
+
+The Bunch class also has a static method ``Bunch.fromYAML()``, which loads a Bunch out of a YAML string. Note this implicitly uses `yaml.full_load()` -- see details here https://msg.pyyaml.org/load for changes in  PyYAML 5.1+. For your convenience, the `fromYaml()` method accepts [multiple arguments](https://github.com/dsc/bunch/blob/master/bunch/__init__.py#L473) to customize the loader.
 
 Finally, Bunch converts easily and recursively to (``unbunchify()``, ``Bunch.toDict()``) and from (``bunchify()``, ``Bunch.fromDict()``) a normal ``dict``, making it easy to cleanly serialize them in other formats.
 
@@ -86,6 +90,7 @@ Miscellaneous
 -------------
 
 * It is safe to ``import *`` from this module. You'll get: ``Bunch``, ``bunchify``, and ``unbunchify``.
+* ``bunch`` somehow still supports python 2.5 (?!). Please thank our contributors.
 * Ample doctests:
     
         $ python -m bunch.test
