@@ -1,4 +1,4 @@
-__all__ = ('u', 'iteritems', 'iterkeys', 'Mapping', 'Iterator', '_get_ident')
+__all__ = ('u', 'Mapping', 'Iterator', '_get_ident')
 
 import sys
 
@@ -13,14 +13,6 @@ else:
     import codecs
     def u(string):
         return codecs.unicode_escape_decode(string)[0]
-
-# dict.iteritems(), dict.iterkeys() is also incompatible
-if _IS_PYTHON_3:
-    iteritems = dict.items
-    iterkeys  = dict.keys
-else:
-    iteritems = dict.iteritems
-    iterkeys = dict.iterkeys
 
 # abstract collections moved
 if _IS_PYTHON_3:
